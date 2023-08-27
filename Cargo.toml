@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 bevy = "0.11.2"
 bevy_third_person_camera = "0.1.4"
+bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_infinite_grid", branch = "main" }
