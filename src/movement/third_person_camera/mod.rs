@@ -50,7 +50,7 @@ pub struct ThirdPersonCamera {
 impl Default for ThirdPersonCamera {
     fn default() -> Self {
         ThirdPersonCamera {
-            enabled: true,
+            enabled: false,
             enabled_key: KeyCode::O,
             aim_enabled: false,
             aim_button: MouseButton::Right,
@@ -86,7 +86,7 @@ impl Zoom {
         Self {
             min,
             max,
-            radius: 64.0 / 2.0,
+            radius: 32.0,
             radius_copy: None,
         }
     }
@@ -147,7 +147,7 @@ fn aim_condition(cam_q: Query<&ThirdPersonCamera, With<ThirdPersonCamera>>) -> b
     let Ok(cam) = cam_q.get_single() else {
         return false;
     };
-    cam.aim_enabled
+    cam.aim_enabled && cam.enabled
 }
 
 fn aim(
@@ -218,7 +218,7 @@ fn toggle_x_offset_condition(cam_q: Query<&ThirdPersonCamera, With<ThirdPersonCa
     let Ok(cam) = cam_q.get_single() else {
         return false;
     };
-    cam.offset_toggle_enabled
+    cam.offset_toggle_enabled && cam.enabled
 }
 
 // inverts the x offset. Example: left shoulder view -> right shoulder view & vice versa
@@ -279,7 +279,7 @@ fn toggle_cursor_condition(cam_q: Query<&ThirdPersonCamera>) -> bool {
     let Ok(cam) = cam_q.get_single() else {
         return true;
     };
-    cam.cursor_lock_toggle_enabled
+    cam.cursor_lock_toggle_enabled && cam.enabled
 }
 
 fn enabled(cam_q: Query<&ThirdPersonCamera>) -> bool {
