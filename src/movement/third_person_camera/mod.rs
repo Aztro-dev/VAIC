@@ -56,7 +56,7 @@ impl Default for ThirdPersonCamera {
             aim_button: MouseButton::Right,
             aim_speed: 3.0,
             aim_zoom: 0.7,
-            cursor_lock_key: KeyCode::Space,
+            cursor_lock_key: KeyCode::P,
             cursor_lock_toggle_enabled: true,
             focus: Vec3::ZERO,
             cursor_lock_active: true,
@@ -86,7 +86,7 @@ impl Zoom {
         Self {
             min,
             max,
-            radius: (min + max) / 2.0,
+            radius: 64.0 / 2.0,
             radius_copy: None,
         }
     }
@@ -157,7 +157,6 @@ fn aim(
     >,
     mouse: Res<Input<MouseButton>>,
     mut player_q: Query<&mut Transform, With<ThirdPersonCameraTarget>>,
-    btns: Res<Input<GamepadButton>>,
     time: Res<Time>,
 ) {
     let Ok((mut cam, cam_transform)) = cam_q.get_single_mut() else {
@@ -227,7 +226,6 @@ fn toggle_x_offset(
     mut cam_q: Query<&mut ThirdPersonCamera, With<ThirdPersonCamera>>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
-    btns: Res<Input<GamepadButton>>,
 ) {
     let Ok(mut cam) = cam_q.get_single_mut() else {
         return;

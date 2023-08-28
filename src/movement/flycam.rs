@@ -22,7 +22,7 @@ impl Default for MovementSettings {
     fn default() -> Self {
         Self {
             sensitivity: 0.00012,
-            speed: 12.,
+            speed: 36.0,
         }
     }
 }
@@ -101,6 +101,12 @@ fn player_move(
     key_bindings: Res<KeyBindings>,
     mut query: Query<(&FlyCam, &mut Transform)>, //    mut query: Query<&mut Transform, With<FlyCam>>,
 ) {
+    if let Ok(orbit) = orbit_query.get_single() {
+        if orbit.enabled {
+            return;
+        }
+    }
+
     for (_camera, mut transform) in query.iter_mut() {
         let mut velocity = Vec3::ZERO;
         let local_z = transform.local_z();
@@ -108,30 +114,26 @@ fn player_move(
         let right = Vec3::new(local_z.z, 0., -local_z.x);
 
         for key in keys.get_pressed() {
-            if let Ok(orbit) = orbit_query.get_single() {
-                if orbit.enabled {
-                    return;
-                }
-                let key = *key;
-                if key == key_bindings.move_forward {
-                    velocity += forward;
-                } else if key == key_bindings.move_backward {
-                    velocity -= forward;
-                } else if key == key_bindings.move_left {
-                    velocity -= right;
-                } else if key == key_bindings.move_right {
-                    velocity += right;
-                } else if key == key_bindings.move_ascend {
-                    velocity += Vec3::Y;
-                } else if key == key_bindings.move_descend {
-                    velocity -= Vec3::Y;
-                }
+            let key = *key;
+            if key == key_bindings.move_forward {
+                velocity += forward;
+            } else if key == key_bindings.move_backward {
+                velocity -= forward;
             }
-
-            velocity = velocity.normalize_or_zero();
-
-            transform.translation += velocity * time.delta_seconds() * settings.speed
+            if key == key_bindings.move_left {
+                velocity -= right;
+            } else if key == key_bindings.move_right {
+                velocity += right;
+            }
+            if key == key_bindings.move_ascend {
+                velocity += Vec3::Y;
+            } else if key == key_bindings.move_descend {
+                velocity -= Vec3::Y;
+            }
         }
+        velocity = velocity.normalize_or_zero();
+
+        transform.translation += velocity * time.delta_seconds() * settings.speed
     }
 }
 

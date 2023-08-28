@@ -17,9 +17,12 @@ impl Plugin for MovementPlugin {
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((
-        Camera3dBundle::default(),
+        Camera3dBundle {
+            transform: Transform::from_xyz(5.0, 10.0, 5.0),
+            ..default()
+        },
         ThirdPersonCamera {
-            zoom: Zoom::new(25.0, 30.0),
+            zoom: Zoom::new(0.01, 999.0),
             ..default()
         },
         flycam::FlyCam,
