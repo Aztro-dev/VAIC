@@ -57,7 +57,7 @@ impl Default for ThirdPersonCamera {
             aim_speed: 3.0,
             aim_zoom: 0.7,
             cursor_lock_key: KeyCode::P,
-            cursor_lock_toggle_enabled: true,
+            cursor_lock_toggle_enabled: false,
             focus: Vec3::ZERO,
             cursor_lock_active: true,
             mouse_sensitivity: 1.0,

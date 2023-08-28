@@ -36,7 +36,11 @@ pub fn orbit_mouse(
     window_q: Query<&Window, With<PrimaryWindow>>,
     mut cam_q: Query<(&ThirdPersonCamera, &mut Transform), With<ThirdPersonCamera>>,
     mut mouse_evr: EventReader<MouseMotion>,
+    mouse_buttons: Res<Input<MouseButton>>,
 ) {
+    if !mouse_buttons.pressed(MouseButton::Middle) {
+        return;
+    }
     let mut rotation = Vec2::ZERO;
     for ev in mouse_evr.iter() {
         rotation = ev.delta;
