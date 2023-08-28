@@ -33,7 +33,7 @@ pub fn create_light(mut commands: Commands) {
 fn spawn_grid(mut commands: Commands) {
     commands.spawn(InfiniteGridBundle {
         grid: InfiniteGrid {
-            // shadow_color: None,
+            fadeout_distance: 500.0,
             ..default()
         },
         ..default()

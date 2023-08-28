@@ -31,9 +31,7 @@ fn spawn_camera(mut commands: Commands) {
 
 fn toggle_camera(keys: Res<Input<KeyCode>>, mut cameras_query: Query<&mut ThirdPersonCamera>) {
     if keys.just_pressed(KeyCode::O) {
-        let Ok(mut third_person_camera) = cameras_query.get_single_mut() else {
-            panic!();
-        };
+        let mut third_person_camera = cameras_query.get_single_mut().unwrap();
         third_person_camera.enabled = !third_person_camera.enabled;
     }
 }
