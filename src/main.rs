@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 use bevy::window::*;
 use bevy_infinite_grid::*;
-use bevy_third_person_camera::*;
+
+mod movement;
+use movement::MovementPlugin;
 
 fn main() {
     App::new()
@@ -15,8 +17,8 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins((ThirdPersonCameraPlugin, InfiniteGridPlugin))
-        .add_systems(Startup, (spawn_camera, create_light, spawn_grid))
+        .add_plugins((InfiniteGridPlugin, MovementPlugin))
+        .add_systems(Startup, (create_light, spawn_grid))
         .add_systems(Update, close_on_esc)
         .run();
 }
@@ -26,16 +28,6 @@ pub fn create_light(mut commands: Commands) {
         color: Color::WHITE,
         brightness: 1.0,
     });
-}
-
-fn spawn_camera(mut commands: Commands) {
-    commands.spawn((
-        Camera3dBundle::default(),
-        ThirdPersonCamera {
-            zoom: Zoom::new(25.0, 30.0),
-            ..default()
-        },
-    ));
 }
 
 fn spawn_grid(mut commands: Commands) {
