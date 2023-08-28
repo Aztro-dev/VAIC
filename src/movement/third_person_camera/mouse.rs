@@ -37,8 +37,9 @@ pub fn orbit_mouse(
     mut cam_q: Query<(&ThirdPersonCamera, &mut Transform), With<ThirdPersonCamera>>,
     mut mouse_evr: EventReader<MouseMotion>,
     mouse_buttons: Res<Input<MouseButton>>,
+    keys: Res<Input<KeyCode>>,
 ) {
-    if !mouse_buttons.pressed(MouseButton::Middle) {
+    if !(mouse_buttons.pressed(MouseButton::Middle) && keys.pressed(KeyCode::ShiftLeft)) {
         return;
     }
     let mut rotation = Vec2::ZERO;
