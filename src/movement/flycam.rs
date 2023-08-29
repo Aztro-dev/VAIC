@@ -36,6 +36,7 @@ pub struct KeyBindings {
     pub move_right: KeyCode,
     pub move_ascend: KeyCode,
     pub move_descend: KeyCode,
+    pub toggle_mode: KeyCode,
     pub toggle_grab_cursor: KeyCode,
 }
 
@@ -48,7 +49,8 @@ impl Default for KeyBindings {
             move_right: KeyCode::D,
             move_ascend: KeyCode::Space,
             move_descend: KeyCode::ShiftLeft,
-            toggle_grab_cursor: KeyCode::O,
+            toggle_mode: KeyCode::O,
+            toggle_grab_cursor: KeyCode::P,
         }
     }
 }
@@ -175,9 +177,12 @@ fn cursor_grab(
     keys: Res<Input<KeyCode>>,
     key_bindings: Res<KeyBindings>,
     mut primary_window: Query<&mut Window, With<PrimaryWindow>>,
+    mut cam_q: Query<&mut ThirdPersonCamera>
 ) {
     if let Ok(mut window) = primary_window.get_single_mut() {
-        if keys.just_pressed(key_bindings.toggle_grab_cursor) {
+        if keys.just_pressed(key_bindings.toggle_grab_cursor) || keys.just_pressed(key_bindings.toggle_mode) {
+            let mut cam = cam_q.get_single_mut().unwrap();
+            cam.cursor_lock_active = !cam.cursor_lock_active;
             toggle_grab_cursor(&mut window);
         }
     } else {

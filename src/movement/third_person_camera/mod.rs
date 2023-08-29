@@ -261,7 +261,7 @@ fn toggle_cursor(
     };
 
     if keys.just_pressed(cam.cursor_lock_key) {
-        cam.cursor_lock_active = !cam.cursor_lock_active;
+        cam.cursor_lock_active = true;
     }
 
     let mut window = window_q.get_single_mut().unwrap();
