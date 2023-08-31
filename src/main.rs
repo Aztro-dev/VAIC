@@ -3,7 +3,7 @@ use bevy::window::*;
 use bevy_infinite_grid::*;
 
 mod movement;
-use movement::MovementPlugin;
+mod ui;
 
 fn main() {
     App::new()
@@ -17,7 +17,7 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins((InfiniteGridPlugin, MovementPlugin))
+        .add_plugins((InfiniteGridPlugin, movement::MovementPlugin, ui::UiPlugin))
         .add_systems(Startup, (create_light, spawn_grid))
         .add_systems(Update, close_on_esc)
         .run();

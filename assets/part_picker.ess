@@ -1,0 +1,29 @@
+.picker{
+  justify-content: center;
+  align-items: center;
+  background-color: #333333;
+  /*margin-left: 80%;*/
+  display: grid;
+  flex-direction: column;
+  height: 80%;
+  margin-top: 5%;
+  margin-bottom: 5%;
+}
+
+.title{
+  font-size: 50%;
+  margin-top: 0%;
+}
+
+.part{
+  height: 5%;
+  width: 80%;
+}
+
+/*
+.list{
+  justify-content: center;
+  align-items: center;
+  display: grid;
+  column-gap: 5%;
+}
