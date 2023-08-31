@@ -10,7 +10,7 @@ pub fn spawn_part_picker(mut commands: Commands) {
                 <span c:title>"Part Picker"</span>
                 <div c:list>
                     <for part in=parts>
-                        <button c:part>
+                        <button c:button>
                         {part}
                         </button>
                     </for>
