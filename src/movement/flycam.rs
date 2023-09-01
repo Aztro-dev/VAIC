@@ -143,11 +143,20 @@ fn player_move(
 fn player_look(
     settings: Res<MovementSettings>,
     primary_window: Query<&Window, With<PrimaryWindow>>,
+    orbit_query: Query<&ThirdPersonCamera>,
     mut state: ResMut<InputState>,
     motion: Res<Events<MouseMotion>>,
     mut query: Query<&mut Transform, With<FlyCam>>,
 ) {
     if let Ok(window) = primary_window.get_single() {
+        if window.cursor.visible {
+            return;
+        }
+        if let Ok(orbit) = orbit_query.get_single() {
+            if orbit.enabled {
+                return;
+            }
+        }
         for mut transform in query.iter_mut() {
             for ev in state.reader_motion.iter(&motion) {
                 let (mut yaw, mut pitch, _) = transform.rotation.to_euler(EulerRot::YXZ);
@@ -177,10 +186,12 @@ fn cursor_grab(
     keys: Res<Input<KeyCode>>,
     key_bindings: Res<KeyBindings>,
     mut primary_window: Query<&mut Window, With<PrimaryWindow>>,
-    mut cam_q: Query<&mut ThirdPersonCamera>
+    mut cam_q: Query<&mut ThirdPersonCamera>,
 ) {
     if let Ok(mut window) = primary_window.get_single_mut() {
-        if keys.just_pressed(key_bindings.toggle_grab_cursor) || keys.just_pressed(key_bindings.toggle_mode) {
+        if keys.just_pressed(key_bindings.toggle_grab_cursor)
+            || keys.just_pressed(key_bindings.toggle_mode)
+        {
             let mut cam = cam_q.get_single_mut().unwrap();
             cam.cursor_lock_active = !cam.cursor_lock_active;
             toggle_grab_cursor(&mut window);
