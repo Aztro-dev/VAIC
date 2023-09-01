@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use belly::prelude::*;
 
 mod part_picker;
 use part_picker::*;
@@ -8,7 +7,8 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(BellyPlugin).add_systems(Startup, (spawn_2d_cam, spawn_part_picker));
+        app.add_systems(Startup, (spawn_2d_cam, spawn_part_picker))
+            .add_systems(Update, mouse_scroll);
     }
 }
 
