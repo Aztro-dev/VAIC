@@ -39,6 +39,7 @@ pub fn spawn_part_picker(mut commands: Commands) {
                                 style: Style {
                                     flex_direction: FlexDirection::Column,
                                     align_items: AlignItems::End,
+                                    justify_items: JustifyItems::Center,
                                     width: Val::Percent(100.0),
                                     ..default()
                                 },
@@ -49,17 +50,41 @@ pub fn spawn_part_picker(mut commands: Commands) {
                         .with_children(|parent| {
                             // Each individual part
                             for part in parts {
-                                parent.spawn((
-                                    TextBundle::from_section(
-                                        part,
-                                        TextStyle {
-                                            font_size: 20.0,
+                                parent
+                                    .spawn((
+                                        ButtonBundle {
+                                            style: Style {
+                                                width: Val::Px(150.0),
+                                                height: Val::Px(65.0),
+                                                border: UiRect::all(Val::Px(5.0)),
+                                                // horizontally center child text
+                                                justify_content: JustifyContent::Center,
+                                                // vertically center child text
+                                                align_items: AlignItems::Center,
+                                                ..default()
+                                            },
+                                            background_color: BackgroundColor(
+                                                Color::hex("4A4A4A").unwrap(),
+                                            ),
+                                            border_color: BorderColor(
+                                                Color::hex("3A3A3A").unwrap(),
+                                            ),
                                             ..default()
                                         },
-                                    ),
-                                    Label,
-                                    AccessibilityNode(NodeBuilder::new(Role::ListItem)),
-                                ));
+                                        AccessibilityNode(NodeBuilder::new(Role::ListItem)),
+                                    ))
+                                    .with_children(|parent| {
+                                        parent.spawn((
+                                            TextBundle::from_section(
+                                                part,
+                                                TextStyle {
+                                                    font_size: 20.0,
+                                                    ..default()
+                                                },
+                                            ),
+                                            Label,
+                                        ));
+                                    });
                             }
                         });
                 });
