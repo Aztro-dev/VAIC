@@ -28,7 +28,7 @@ fn orbit_condition(cam_q: Query<&ThirdPersonCamera>) -> bool {
     let Ok(cam) = cam_q.get_single() else {
         return true;
     };
-    return cam.cursor_lock_active && cam.enabled;
+    return !cam.cursor_lock_active && cam.enabled;
 }
 
 // heavily referenced https://bevy-cheatbook.github.io/cookbook/pan-orbit-camera.html
