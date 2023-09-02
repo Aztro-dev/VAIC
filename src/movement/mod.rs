@@ -26,6 +26,8 @@ fn spawn_camera(mut commands: Commands) {
             ..default()
         },
         flycam::FlyCam,
+        bevy_mod_picking::backends::raycast::RaycastPickCamera::default(),
+        bevy_transform_gizmo::GizmoPickSource::default(),
     ));
 }
 
