@@ -8,7 +8,7 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (spawn_2d_cam, spawn_part_picker))
-            .add_systems(Update, mouse_scroll);
+            .add_systems(Update, (mouse_scroll, detect_button_click));
     }
 }
 

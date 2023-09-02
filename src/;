@@ -6,10 +6,7 @@ use bevy::input::mouse::*;
 use bevy::prelude::*;
 
 pub fn spawn_part_picker(mut commands: Commands) {
-    let parts = vec![
-        "Cube", "Sphere", "Cone", "Cube", "Sphere", "Cone", "Cube", "Sphere", "Cone", "Cube",
-        "Sphere", "Cone", "Cube", "Sphere", "Cone",
-    ];
+    let parts = vec!["Cube", "Sphere", "Cone"];
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -28,10 +25,10 @@ pub fn spawn_part_picker(mut commands: Commands) {
                 .spawn(NodeBundle {
                     style: Style {
                         width: Val::Percent(40.0),
-                        border: UiRect::all(Val::Px(2.0)),
+                        border: UiRect::all(Val::Px(3.0)),
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::hex("4A4A4AAA").unwrap()),
+                    background_color: BackgroundColor(Color::hex("4A4A4A").unwrap()),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -43,7 +40,6 @@ pub fn spawn_part_picker(mut commands: Commands) {
                                     flex_direction: FlexDirection::Column,
                                     align_items: AlignItems::End,
                                     justify_items: JustifyItems::Center,
-                                    overflow: Overflow::clip_y(),
                                     width: Val::Percent(100.0),
                                     ..default()
                                 },
@@ -62,25 +58,39 @@ pub fn spawn_part_picker(mut commands: Commands) {
         });
 }
 
-pub fn detect_button_click(
+const PRESSED_BUTTON: Color = Color::hex("2A2A2A").unwrap();
+const HOVERED_BUTTON: Color = Color::hex("3A3A3A").unwrap();
+const NORMAL_BUTTON: Color = Color::hex("4A4A4A").unwrap();
+
+fn detect_button_click(
     mut interaction_query: Query<
-        (&Interaction, &mut BackgroundColor, &Children),
+        (
+            &Interaction,
+            &mut BackgroundColor,
+            &mut BorderColor,
+            &Children,
+        ),
         (Changed<Interaction>, With<Button>),
     >,
-    text_query: Query<&mut Text>,
+    mut text_query: Query<&mut Text>,
 ) {
-    for (interaction, mut color, children) in &mut interaction_query {
-        let text = text_query.get(children[0]).unwrap();
+    for (interaction, mut color, mut border_color, children) in &mut interaction_query {
+        let mut text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
-                println!("{}", text.sections[0].value);
-                *color = Color::hex("202020").unwrap().into();
+                text.sections[0].value = "Press".to_string();
+                *color = PRESSED_BUTTON.into();
+                border_color.0 = Color::RED;
             }
             Interaction::Hovered => {
-                *color = Color::hex("2A2A2A").unwrap().into();
+                text.sections[0].value = "Hover".to_string();
+                *color = HOVERED_BUTTON.into();
+                border_color.0 = Color::WHITE;
             }
             Interaction::None => {
-                *color = Color::hex("3A3A3A").unwrap().into();
+                text.sections[0].value = "Button".to_string();
+                *color = NORMAL_BUTTON.into();
+                border_color.0 = Color::BLACK;
             }
         }
     }
@@ -93,15 +103,16 @@ fn part_button_styled(parent: &mut ChildBuilder, text: &str) {
                 style: Style {
                     width: Val::Px(150.0),
                     height: Val::Px(65.0),
-                    border: UiRect::all(Val::Px(2.0)),
+                    border: UiRect::all(Val::Px(5.0)),
                     // horizontally center child text
-                    justify_content: JustifyContent::End,
+                    justify_content: JustifyContent::Center,
                     // vertically center child text
                     align_items: AlignItems::Center,
                     ..default()
                 },
                 background_color: BackgroundColor(Color::hex("4A4A4A").unwrap()),
-                border_color: BorderColor(Color::hex("303030").unwrap()),
+                border_color: BorderColor(Color::hex("3A3A3A").unwrap()),
+                interaction: Interaction::Pressed,
                 ..default()
             },
             AccessibilityNode(NodeBuilder::new(Role::ListItem)),
