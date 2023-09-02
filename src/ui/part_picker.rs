@@ -1,3 +1,5 @@
+use super::PickerSelect;
+use super::PickerState;
 use bevy::a11y::{
     accesskit::{NodeBuilder, Role},
     AccessibilityNode,
@@ -14,7 +16,7 @@ pub fn spawn_part_picker(mut commands: Commands) {
         .spawn(NodeBundle {
             style: Style {
                 display: Display::Flex,
-                left: Val::Percent(83.0),
+                left: Val::Percent(83.0), // Magic number
                 width: Val::Percent(40.0),
                 height: Val::Percent(80.0),
                 top: Val::Percent(10.0),
@@ -68,13 +70,23 @@ pub fn detect_button_click(
         (Changed<Interaction>, With<Button>),
     >,
     text_query: Query<&mut Text>,
+    mut next: ResMut<NextState<PickerState>>,
+    mut picker_select: ResMut<PickerSelect>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
         let text = text_query.get(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
-                println!("{}", text.sections[0].value);
+                let text_val = &text.sections[0].value;
                 *color = Color::hex("202020").unwrap().into();
+
+                if picker_select.selected == None {
+                    next.set(PickerState::PartSelected);
+                    picker_select.selected = Some(text_val.to_string());
+                } else {
+                    next.set(PickerState::PartDeselected);
+                    picker_select.selected = None;
+                }
             }
             Interaction::Hovered => {
                 *color = Color::hex("2A2A2A").unwrap().into();
