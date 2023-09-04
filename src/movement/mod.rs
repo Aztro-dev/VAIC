@@ -1,4 +1,6 @@
+use crate::RaycastSet;
 use bevy::prelude::*;
+use bevy_mod_raycast::*;
 
 mod flycam;
 mod third_person_camera;
@@ -28,6 +30,7 @@ fn spawn_camera(mut commands: Commands) {
         flycam::FlyCam,
         bevy_mod_picking::backends::raycast::RaycastPickCamera::default(),
         bevy_transform_gizmo::GizmoPickSource::default(),
+        RaycastSource::<RaycastSet>::new(),
     ));
 }
 
