@@ -2,6 +2,8 @@ use crate::RaycastSet;
 use bevy::prelude::*;
 use bevy_mod_raycast::*;
 
+use smooth_bevy_cameras::*;
+
 mod flycam;
 mod third_person_camera;
 

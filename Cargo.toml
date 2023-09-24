@@ -11,3 +11,4 @@ bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporat
 bevy_mod_picking = "0.15.0"
 bevy_mod_raycast = "0.13.1"
 bevy_transform_gizmo = "0.8.0"
+smooth-bevy-cameras = { git = "https://github.com/Aztro-dev/smooth-bevy-cameras.git", branch = "main" }
