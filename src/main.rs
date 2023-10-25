@@ -1,14 +1,6 @@
 use bevy::prelude::*;
 use bevy::window::*;
 use bevy_infinite_grid::*;
-use bevy_mod_raycast::*;
-
-mod movement;
-mod part;
-mod ui;
-
-#[derive(Reflect)]
-pub struct RaycastSet;
 
 fn main() {
     App::new()
@@ -22,50 +14,28 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugins((
-            InfiniteGridPlugin,
-            movement::MovementPlugin,
-            ui::UiPlugin,
-            part::PartPlugin,
-            DefaultRaycastingPlugin::<RaycastSet>::default(),
-        ))
-        .add_systems(Startup, (create_light, spawn_grid))
-        .add_systems(Update, (close_on_esc, print_intersections::<RaycastSet>))
-        .add_systems(
-            First,
-            update_raycast.before(RaycastSystem::BuildRays::<RaycastSet>),
-        )
+        .add_plugins(InfiniteGridPlugin)
+        .add_systems(Startup, setup)
+        .add_systems(Update, close_on_esc)
         .run();
 }
 
-fn create_light(mut commands: Commands) {
+fn setup(mut commands: Commands) {
+    commands.spawn(Camera3dBundle {
+        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ..default()
+    });
+
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
         brightness: 1.0,
     });
-}
 
-fn spawn_grid(mut commands: Commands) {
-    commands
-        .spawn(InfiniteGridBundle {
-            grid: InfiniteGrid {
-                fadeout_distance: 500.0,
-                ..default()
-            },
+    commands.spawn(InfiniteGridBundle {
+        grid: InfiniteGrid {
+            fadeout_distance: 500.0,
             ..default()
-        })
-        .insert(RaycastMesh::<RaycastSet>::default());
-}
-
-fn update_raycast(
-    mut cursor: EventReader<CursorMoved>,
-    mut query: Query<&mut RaycastSource<RaycastSet>>,
-) {
-    // Grab the most recent cursor event if it exists:
-    let Some(cursor_moved) = cursor.iter().last() else {
-        return;
-    };
-    for mut pick_source in &mut query {
-        pick_source.cast_method = RaycastMethod::Screenspace(cursor_moved.position);
-    }
+        },
+        ..default()
+    });
 }
