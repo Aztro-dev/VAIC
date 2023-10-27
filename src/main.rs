@@ -1,19 +1,28 @@
 use bevy::prelude::*;
 use bevy::window::*;
 use bevy_infinite_grid::*;
+use bevy_mod_picking::low_latency_window_plugin;
+
+mod placing;
+use placing::PlacingPlugin;
 
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                title: "VAIC".into(),
-                fit_canvas_to_parent: true,
-                present_mode: PresentMode::AutoNoVsync,
-                ..default()
-            }),
-            ..default()
-        }))
+        .add_plugins((
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "VAIC".into(),
+                        fit_canvas_to_parent: true,
+                        present_mode: PresentMode::AutoNoVsync,
+                        ..default()
+                    }),
+                    ..default()
+                })
+                .set(low_latency_window_plugin()),
+            PlacingPlugin,
+        ))
         .add_plugins(InfiniteGridPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, close_on_esc)
