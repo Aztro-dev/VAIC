@@ -45,11 +45,15 @@ fn setup(mut commands: Commands) {
         brightness: 1.0,
     });
 
-    commands.spawn(InfiniteGridBundle {
-        grid: InfiniteGrid {
-            fadeout_distance: 500.0,
+    commands.spawn((
+        InfiniteGridBundle {
+            grid: InfiniteGrid {
+                fadeout_distance: 500.0,
+                ..default()
+            },
             ..default()
         },
-        ..default()
-    });
+        bevy_mod_picking::PickableBundle::default(),
+        bevy_mod_picking::backends::raycast::RaycastPickTarget::default(),
+    ));
 }
