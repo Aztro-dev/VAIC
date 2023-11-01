@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_mod_picking::backend::HitData;
 use bevy_mod_picking::prelude::*;
+use bevy_transform_gizmo::GizmoPickSource;
 
 pub struct PlacingPlugin;
 
@@ -20,16 +21,22 @@ impl Plugin for PlacingPlugin {
 pub struct PlacingEvent(pub HitData);
 
 const SIZE: f32 = 1.0;
+const PLACING_RADIUS: f32 = 40.0;
 
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    transform_query: Query<&Transform, With<GizmoPickSource>>, // Needed for camera pos
 ) {
+    let camera_pos = transform_query.get_single().expect("No camera found");
     for event in event_reader.iter() {
-        let hit = &event.0.position.unwrap();
-        let new_position = Vec3::new(hit.x, hit.y + SIZE / 2.0, hit.z);
+        let hit = &event.0.position.expect("No Hit Found");
+        let mut new_position = Vec3::new(hit.x, hit.y + SIZE / 2.0, hit.z);
+        if hit.distance(camera_pos.translation) >= PLACING_RADIUS {
+            new_position = Vec3::ZERO;
+        }
         commands.spawn((
             PbrBundle {
                 mesh: meshes.add(Mesh::from(shape::Cube { size: SIZE })),
@@ -48,8 +55,6 @@ pub fn send_place_event(
     mut place_event: EventWriter<PlacingEvent>,
     listener: Listener<Pointer<Click>>,
 ) {
-    // TODO: default to a certain radius away from raycast if too far
-
     let button = listener.button;
     if button != PointerButton::Secondary {
         return;
