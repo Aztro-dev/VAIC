@@ -19,6 +19,8 @@ impl Plugin for PlacingPlugin {
 #[derive(Event)]
 pub struct PlacingEvent(pub HitData);
 
+const SIZE: f32 = 1.0;
+
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
     mut commands: Commands,
@@ -26,12 +28,13 @@ fn spawn_event(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     for event in event_reader.iter() {
-        let hit = &event.0;
+        let hit = &event.0.position.unwrap();
+        let new_position = Vec3::new(hit.x, hit.y + SIZE / 2.0, hit.z);
         commands.spawn((
             PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+                mesh: meshes.add(Mesh::from(shape::Cube { size: SIZE })),
                 material: materials.add(StandardMaterial { ..default() }),
-                transform: Transform::from_translation(hit.position.unwrap()),
+                transform: Transform::from_translation(new_position),
                 ..default()
             },
             bevy_mod_picking::PickableBundle::default(),
