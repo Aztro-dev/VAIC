@@ -49,7 +49,7 @@ fn setup(
 
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 1.0,
+        brightness: 10.0,
     });
 
     commands.spawn(InfiniteGridBundle {

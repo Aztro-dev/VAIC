@@ -48,6 +48,8 @@ pub fn send_place_event(
     mut place_event: EventWriter<PlacingEvent>,
     listener: Listener<Pointer<Click>>,
 ) {
+    // TODO: default to a certain radius away from raycast if too far
+
     let button = listener.button;
     if button != PointerButton::Secondary {
         return;
