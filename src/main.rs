@@ -69,7 +69,7 @@ fn setup(
                 }
                 .into(),
             ),
-            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 1.0).into()),
+            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.0).into()),
             visibility: Visibility::Visible,
             ..default()
         },
