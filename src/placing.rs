@@ -21,7 +21,7 @@ impl Plugin for PlacingPlugin {
 pub struct PlacingEvent(pub HitData);
 
 const SIZE: f32 = 1.0;
-const PLACING_RADIUS: f32 = 40.0;
+const PLACING_RADIUS: f32 = 30.0;
 
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
@@ -32,10 +32,16 @@ fn spawn_event(
 ) {
     let camera_pos = transform_query.get_single().expect("No camera found");
     for event in event_reader.iter() {
-        let hit = &event.0.position.expect("No Hit Found");
+        let hit = event.0.position.expect("No Hit Found");
         let mut new_position = Vec3::new(hit.x, hit.y + SIZE / 2.0, hit.z);
         if hit.distance(camera_pos.translation) >= PLACING_RADIUS {
-            new_position = Vec3::ZERO;
+            new_position = hit.normalize_or_zero(); // I'm guessing it's something wrong with this line
+            new_position = Vec3::new(
+                new_position.x * PLACING_RADIUS,
+                new_position.y * PLACING_RADIUS,
+                new_position.z * PLACING_RADIUS,
+            );
+            println!("{:?}", new_position);
         }
         commands.spawn((
             PbrBundle {
