@@ -8,6 +8,9 @@ mod placing;
 use placing::PlacingEvent;
 use placing::PlacingPlugin;
 
+mod movement;
+use movement::MovementPlugin;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
@@ -26,8 +29,9 @@ fn main() {
                 })
                 .set(low_latency_window_plugin()),
             PlacingPlugin,
+            InfiniteGridPlugin,
+            MovementPlugin,
         ))
-        .add_plugins(InfiniteGridPlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, (close_on_esc, toggle_grid_visibility))
         .run();
@@ -38,15 +42,6 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    commands.spawn((
-        Camera3dBundle {
-            transform: Transform::from_xyz(-7.0, 7.5, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
-            ..default()
-        },
-        bevy_mod_picking::backends::raycast::RaycastPickCamera::default(),
-        bevy_transform_gizmo::GizmoPickSource::default(),
-    ));
-
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
         brightness: 10.0,
