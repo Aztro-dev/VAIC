@@ -48,7 +48,7 @@ fn setup(
     });
 
     commands.spawn(InfiniteGridBundle {
-        grid: InfiniteGrid {
+        settings: InfiniteGridSettings {
             fadeout_distance: 500.0,
             ..default()
         },

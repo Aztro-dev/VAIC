@@ -9,6 +9,7 @@ pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((LookTransformPlugin, OrbitCameraPlugin::default()))
+            .add_systems(Update, switch_control_state)
             .add_systems(Startup, spawn_camera);
     }
 }
@@ -29,4 +30,16 @@ fn spawn_camera(mut commands: Commands) {
             Vec3::Y,
         ),
     ));
+}
+
+fn switch_control_state(
+    mut query: Query<&mut OrbitCameraController>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    if !keyboard.just_pressed(KeyCode::P) {
+        return;
+    }
+    if let Ok(mut controller) = query.get_single_mut() {
+        controller.toggle_control_state();
+    }
 }
