@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy::window::*;
+use bevy::window::PresentMode;
 use bevy_infinite_grid::*;
 use bevy_mod_picking::low_latency_window_plugin;
 use bevy_mod_picking::prelude::*;
@@ -37,7 +37,7 @@ fn main() {
             UIPlugin,
         ))
         .add_systems(Startup, setup)
-        .add_systems(Update, (close_on_esc, toggle_grid_visibility))
+        .add_systems(Update, toggle_grid_visibility)
         .run();
 }
 
