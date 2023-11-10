@@ -1,5 +1,8 @@
 use bevy::prelude::*;
 
+mod general;
+use general::GeneralPlugin;
+
 pub struct UIPlugin;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
@@ -13,7 +16,9 @@ pub enum UIState {
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<UIState>().add_systems(Update, handle_esc);
+        app.add_state::<UIState>()
+            .add_systems(Update, handle_esc)
+            .add_plugins(GeneralPlugin);
     }
 }
 
