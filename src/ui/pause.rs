@@ -30,6 +30,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     flex_direction: FlexDirection::Column,
+                    display: Display::Flex,
                     ..default()
                 },
                 background_color: BackgroundColor(Color::hex("444444").unwrap().into()),
@@ -68,7 +69,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     style: Style {
                         width: Val::Percent(BUTTON_WIDTH),
                         height: Val::Percent(BUTTON_HEIGHT),
-                        top: Val::Percent(10.0),
+                        top: Val::Percent(15.0),
                         bottom: Val::Percent(33.3),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
