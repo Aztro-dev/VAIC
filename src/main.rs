@@ -32,7 +32,7 @@ fn main() {
                 })
                 .set(low_latency_window_plugin()),
             PlacingPlugin,
-            // InfiniteGridPlugin,
+            InfiniteGridPlugin,
             MovementPlugin,
             UIPlugin,
         ))
@@ -54,6 +54,7 @@ fn setup(
     commands.spawn(InfiniteGridBundle {
         settings: InfiniteGridSettings {
             fadeout_distance: 500.0,
+            shadow_color: None,
             ..default()
         },
         visibility: Visibility::Visible,
@@ -68,11 +69,11 @@ fn setup(
                 }
                 .into(),
             ),
-            material: materials.add(Color::rgba(0.0, 0.0, 0.0, 0.0).into()),
+            transform: Transform::from_xyz(0.0, -0.1, 0.0),
+            material: materials.add(Color::rgba(1.0, 0.0, 0.0, 0.0).into()),
             visibility: Visibility::Visible,
             ..default()
         },
-        bevy_mod_picking::PickableBundle::default(),
         On::<Pointer<Click>>::run(placing::send_place_event),
     ));
 }
