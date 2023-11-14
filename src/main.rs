@@ -32,7 +32,7 @@ fn main() {
                 })
                 .set(low_latency_window_plugin()),
             PlacingPlugin,
-            InfiniteGridPlugin,
+            // InfiniteGridPlugin,
             MovementPlugin,
             UIPlugin,
         ))
@@ -72,7 +72,7 @@ fn setup(
             visibility: Visibility::Visible,
             ..default()
         },
-        bevy_mod_picking::backends::raycast::RaycastPickTarget::default(),
+        bevy_mod_picking::PickableBundle::default(),
         On::<Pointer<Click>>::run(placing::send_place_event),
     ));
 }

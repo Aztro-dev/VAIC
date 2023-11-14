@@ -16,7 +16,6 @@ impl Plugin for MovementPlugin {
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera3dBundle::default()).insert((
-        bevy_mod_picking::backends::raycast::RaycastPickCamera::default(),
         bevy_transform_gizmo::GizmoPickSource::default(),
         OrbitCameraBundle::new(
             OrbitCameraController {

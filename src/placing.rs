@@ -31,7 +31,7 @@ fn spawn_event(
     transform_query: Query<&Transform, With<GizmoPickSource>>, // Needed for camera pos
 ) {
     let camera_pos = transform_query.get_single().expect("No camera found");
-    for event in event_reader.iter() {
+    for event in event_reader.read() {
         let hit = event.0.position.expect("No Hit Found");
         let mut new_position = Vec3::new(hit.x, hit.y + SIZE / 2.0, hit.z);
         if hit.distance(camera_pos.translation) >= PLACING_RADIUS {
@@ -46,12 +46,14 @@ fn spawn_event(
         commands.spawn((
             PbrBundle {
                 mesh: meshes.add(Mesh::from(shape::Cube { size: SIZE })),
-                material: materials.add(StandardMaterial { ..default() }),
+                material: materials.add(StandardMaterial {
+                    base_color: Color::hex("FF0000").unwrap().into(),
+                    ..default()
+                }),
                 transform: Transform::from_translation(new_position),
                 ..default()
             },
             bevy_mod_picking::PickableBundle::default(),
-            bevy_mod_picking::backends::raycast::RaycastPickTarget::default(),
             bevy_transform_gizmo::GizmoTransformable,
         ));
     }
