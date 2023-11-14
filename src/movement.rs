@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_infinite_grid::GridShadowCamera;
+use bevy_transform_gizmo::GizmoPickSource;
 use smooth_bevy_cameras::controllers::orbit::OrbitCameraBundle;
 use smooth_bevy_cameras::controllers::orbit::OrbitCameraController;
 use smooth_bevy_cameras::controllers::orbit::OrbitCameraPlugin;
@@ -17,7 +18,7 @@ impl Plugin for MovementPlugin {
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn(Camera3dBundle::default()).insert((
-        bevy_transform_gizmo::GizmoPickSource::default(),
+        GizmoPickSource::default(),
         GridShadowCamera,
         OrbitCameraBundle::new(
             OrbitCameraController {

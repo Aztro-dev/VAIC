@@ -1,5 +1,4 @@
 use super::UIState;
-use bevy::app::AppExit;
 use bevy::prelude::*;
 
 pub struct SettingsPlugin;

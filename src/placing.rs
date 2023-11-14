@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_mod_picking::backend::HitData;
 use bevy_mod_picking::prelude::*;
-use bevy_transform_gizmo::GizmoPickSource;
 
 pub struct PlacingPlugin;
 
@@ -28,7 +27,7 @@ fn spawn_event(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    transform_query: Query<&Transform, With<GizmoPickSource>>, // Needed for camera pos
+    transform_query: Query<&Transform, With<bevy_infinite_grid::GridShadowCamera>>, // Needed for camera pos
 ) {
     let camera_pos = transform_query.get_single().expect("No camera found");
     for event in event_reader.read() {
