@@ -3,6 +3,9 @@ use bevy::prelude::*;
 mod pause;
 use pause::PausePlugin;
 
+mod settings;
+use settings::SettingsPlugin;
+
 pub struct UIPlugin;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
@@ -18,7 +21,7 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<UIState>()
             .add_systems(Update, handle_esc)
-            .add_plugins(PausePlugin);
+            .add_plugins((PausePlugin, SettingsPlugin));
     }
 }
 

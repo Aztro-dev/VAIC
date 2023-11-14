@@ -2,18 +2,18 @@ use super::UIState;
 use bevy::app::AppExit;
 use bevy::prelude::*;
 
-pub struct PausePlugin;
+pub struct SettingsPlugin;
 
-impl Plugin for PausePlugin {
+impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(UIState::Pause), spawn_ui)
-            .add_systems(OnExit(UIState::Pause), despawn_ui)
-            .add_systems(Update, button_system.run_if(in_state(UIState::Pause)));
+        app.add_systems(OnEnter(UIState::Settings), spawn_ui)
+            .add_systems(OnExit(UIState::Settings), despawn_ui)
+            .add_systems(Update, button_system.run_if(in_state(UIState::Settings)));
     }
 }
 
 #[derive(Component)]
-struct PauseUIComponent;
+struct SettingsUIComponent;
 
 const BUTTON_WIDTH: f32 = 80.0;
 const BUTTON_HEIGHT: f32 = 20.0;
@@ -23,9 +23,9 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn((
             NodeBundle {
                 style: Style {
-                    width: Val::Percent(40.0),
+                    width: Val::Percent(80.0),
                     height: Val::Percent(80.0),
-                    left: Val::Percent(30.0), // 30% - 40% - 30%
+                    left: Val::Percent(10.0), // 10% - 80% - 10%
                     align_self: AlignSelf::Center,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
@@ -36,7 +36,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                 background_color: BackgroundColor(Color::hex("444444").unwrap().into()),
                 ..default()
             },
-            PauseUIComponent,
+            SettingsUIComponent,
         ))
         .with_children(|parent| {
             parent
@@ -54,7 +54,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                 .with_children(|parent| {
                     parent.spawn((
                         TextBundle::from_section(
-                            "Settings",
+                            "Resume",
                             TextStyle {
                                 font: asset_server.load("FiraMonoNerdFontMono-Bold.otf"),
                                 font_size: 32.0,
@@ -94,9 +94,9 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         });
 }
 
-fn despawn_ui(mut commands: Commands, mut ui: Query<Entity, With<PauseUIComponent>>) {
+fn despawn_ui(mut commands: Commands, mut ui: Query<Entity, With<SettingsUIComponent>>) {
     commands
-        .entity(ui.get_single_mut().expect("Pause UI Not Found!"))
+        .entity(ui.get_single_mut().expect("Settings UI Not Found!"))
         .despawn_recursive();
 }
 
@@ -106,7 +106,6 @@ fn button_system(
         (Changed<Interaction>, With<Button>),
     >,
     mut text_query: Query<&mut Text>,
-    mut exit: EventWriter<AppExit>,
     mut ui_state: ResMut<NextState<UIState>>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
@@ -115,10 +114,10 @@ fn button_system(
             Interaction::Pressed => {
                 match text.sections[0].value.as_str() {
                     "Exit" => {
-                        exit.send(AppExit);
+                        ui_state.set(UIState::None);
                     }
-                    "Settings" => {
-                        ui_state.set(UIState::Settings);
+                    "Resume" => {
+                        ui_state.set(UIState::None);
                     }
                     _ => {
                         panic!("Bruh");
