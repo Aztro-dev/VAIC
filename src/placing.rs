@@ -19,20 +19,18 @@ impl Plugin for PlacingPlugin {
 #[derive(Event)]
 pub struct PlacingEvent(pub HitData);
 
-const SIZE: f32 = 1.0;
 const PLACING_RADIUS: f32 = 30.0;
 
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
     transform_query: Query<&Transform, With<bevy_infinite_grid::GridShadowCamera>>, // Needed for camera pos
 ) {
     let camera_pos = transform_query.get_single().expect("No camera found");
     for event in event_reader.read() {
         let hit = event.0.position.expect("No Hit Found");
-        let mut new_position = Vec3::new(hit.x, hit.y + SIZE / 2.0, hit.z);
+        let mut new_position = Vec3::new(hit.x, hit.y, hit.z);
         if hit.distance(camera_pos.translation) >= PLACING_RADIUS {
             new_position = hit.normalize_or_zero(); // I'm guessing it's something wrong with this line
             new_position = Vec3::new(
@@ -42,13 +40,11 @@ fn spawn_event(
             );
             println!("{:?}", new_position);
         }
+
+        let duck_handle = asset_server.load("models/low_poly_duck.glb#Scene0");
         commands.spawn((
-            PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Cube { size: SIZE })),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::hex("FF0000").unwrap().into(),
-                    ..default()
-                }),
+            SceneBundle {
+                scene: duck_handle,
                 transform: Transform::from_translation(new_position),
                 ..default()
             },
