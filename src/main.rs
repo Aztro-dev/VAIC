@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::window::PresentMode;
 use bevy_infinite_grid::*;
 use bevy_mod_picking::low_latency_window_plugin;
-use bevy_mod_picking::prelude::*;
+use bevy_mod_raycast::prelude::*;
 
 mod placing;
 use placing::PlacingEvent;
@@ -35,6 +35,7 @@ fn main() {
             InfiniteGridPlugin,
             MovementPlugin,
             UIPlugin,
+            DefaultRaycastingPlugin,
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, toggle_grid_visibility)
@@ -74,7 +75,7 @@ fn setup(
             visibility: Visibility::Visible,
             ..default()
         },
-        On::<Pointer<Click>>::run(placing::send_place_event),
+        RaycastMesh::<()>::default(), // Make this mesh ray cast-able;
     ));
 }
 

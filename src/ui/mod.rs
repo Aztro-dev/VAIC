@@ -6,13 +6,16 @@ use pause::PausePlugin;
 mod settings;
 use settings::SettingsPlugin;
 
+mod editor;
+use editor::EditorPlugin;
+
 pub struct UIPlugin;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
 pub enum UIState {
     #[default]
     MainMenu, // Main Menu (duh)
-    None,     // In editor
+    Editor,   // In editor
     Pause,    // Toggling escape
     Settings, // For changing sens, keybindings, etc.
 }
@@ -21,7 +24,7 @@ impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<UIState>()
             .add_systems(Update, handle_esc)
-            .add_plugins((PausePlugin, SettingsPlugin));
+            .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin));
     }
 }
 
@@ -32,14 +35,14 @@ fn handle_esc(
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         match current_state.get() {
-            UIState::None => {
+            UIState::Editor => {
                 ui_state.set(UIState::Pause);
             }
             UIState::Pause => {
-                ui_state.set(UIState::None);
+                ui_state.set(UIState::Editor);
             }
             _ => {
-                ui_state.set(UIState::None);
+                ui_state.set(UIState::Editor);
             }
         }
     }

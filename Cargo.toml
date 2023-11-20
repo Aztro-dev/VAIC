@@ -12,3 +12,4 @@ smooth-bevy-cameras = { git = "https://github.com/Aztro-dev/smooth-bevy-cameras.
 bevy_transform_gizmo = { git = "https://github.com/rszemplinski/bevy_transform_gizmo.git", branch = "main" } # Until updated to 0.12
 bevy_mod_picking = "0.17.0"
 bevy_prototype_lyon = "0.10.0"
+bevy_mod_raycast = "0.16.0"

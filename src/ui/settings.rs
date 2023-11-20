@@ -113,10 +113,10 @@ fn button_system(
             Interaction::Pressed => {
                 match text.sections[0].value.as_str() {
                     "Exit" => {
-                        ui_state.set(UIState::None);
+                        ui_state.set(UIState::Editor);
                     }
                     "Resume" => {
-                        ui_state.set(UIState::None);
+                        ui_state.set(UIState::Editor);
                     }
                     _ => {
                         panic!("Bruh");
