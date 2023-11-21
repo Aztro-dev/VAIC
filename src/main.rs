@@ -65,7 +65,7 @@ fn setup(
         PbrBundle {
             mesh: meshes.add(
                 shape::Plane {
-                    size: 1000.0,
+                    size: 1000000.0, // Basically infinite if you really think about it
                     ..default()
                 }
                 .into(),
@@ -75,6 +75,7 @@ fn setup(
             visibility: Visibility::Visible,
             ..default()
         },
+        placing::Part {},
         RaycastMesh::<()>::default(), // Make this mesh ray cast-able;
     ));
 }

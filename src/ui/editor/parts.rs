@@ -17,9 +17,9 @@ pub fn button_system(
         let text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
-                let str = get_model_name(text.sections[0].value.as_str());
+                let name = get_model_name(text.sections[0].value.as_str());
 
-                placing_event.send(PlacingEvent(format!("models/{str}#Scene0")));
+                placing_event.send(PlacingEvent(format!("models/{name}#Scene0")));
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {
@@ -34,8 +34,8 @@ pub fn button_system(
 
 fn get_model_name(text: &str) -> &str {
     match text {
-        "Duck" => "low_poly_duck.glb",
-        "Cube" => "duck",
+        "Duck" => "low_poly_duck_combined.glb",
+        "Cube" => "cube.glb",
         _ => "duck",
     }
 }

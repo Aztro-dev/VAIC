@@ -57,33 +57,46 @@ enum PlacingState {
     NotPlacing,
 }
 
+#[derive(Component)]
+pub struct Part;
+
 fn placing(
     mut commands: Commands,
-    mut part_query: Query<(&mut Transform, Entity), With<CurrentlyPlacing>>,
+    mut placing_query: Query<(&mut Transform, Entity), With<CurrentlyPlacing>>,
+    placed_query: Query<Entity, With<Part>>,
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     mouse: Res<Input<MouseButton>>,
     mut placing_state: ResMut<NextState<PlacingState>>,
 ) {
-    for (mut transform, entity) in part_query.iter_mut() {
+    for (mut transform, entity) in placing_query.iter_mut() {
         if mouse.just_pressed(MouseButton::Left) {
             commands.entity(entity).remove::<CurrentlyPlacing>();
+            commands.get_entity(entity).unwrap().insert(Part {});
             placing_state.set(PlacingState::NotPlacing);
         }
-        let should_be_picked: &dyn Fn(Entity) -> bool = &(|filter_entity: Entity| -> bool {
-            println!("{}, {}", entity.index(), filter_entity.index());
-            return entity.index() != filter_entity.index();
-        });
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(
                 cursor_ray,
                 &RaycastSettings {
-                    filter: should_be_picked,
+                    filter: &|filter_entity| {
+                        if let Ok(_worked) = placed_query.get(filter_entity) {
+                            return true;
+                        }
+                        return false;
+                    },
                     ..default()
                 },
             );
-            let intersection_data = &intersection_array[intersection_array.len() - 1].1;
-            let intersection_entity = &intersection_array[intersection_array.len() - 1].0;
+            if intersection_array.len() == 0 {
+                transform.translation = cursor_ray.position(PLACING_RADIUS);
+                continue;
+            }
+            let intersection_data = &intersection_array[0].1;
+            if intersection_data.distance() >= PLACING_RADIUS {
+                transform.translation = cursor_ray.position(PLACING_RADIUS);
+                continue;
+            }
             transform.translation = intersection_data.position();
         }
     }
