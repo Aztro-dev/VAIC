@@ -23,7 +23,7 @@ impl Plugin for PlacingPlugin {
 }
 
 #[derive(Resource)]
-struct RecentlyPlaced(Option<String>);
+pub struct RecentlyPlaced(pub Option<String>);
 
 /// Takes in path to model
 #[derive(Event)]
@@ -47,6 +47,7 @@ fn spawn_event(
                 transform: Transform::from_translation(new_position),
                 ..default()
             },
+            bevy_transform_gizmo::GizmoTransformable,
             CurrentlyPlacing {},
         ));
         placing_state.set(PlacingState::Placing);
@@ -55,7 +56,7 @@ fn spawn_event(
 }
 
 #[derive(Component)]
-struct CurrentlyPlacing;
+pub struct CurrentlyPlacing;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
 pub enum PlacingState {

@@ -12,6 +12,7 @@ pub fn button_system(
     >,
     mut text_query: Query<&mut Text>,
     mut placing_event: EventWriter<PlacingEvent>,
+    mut recently_placed: ResMut<crate::placing::RecentlyPlaced>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
         let text = text_query.get_mut(children[0]).unwrap();
@@ -19,7 +20,11 @@ pub fn button_system(
             Interaction::Pressed => {
                 let name = get_model_name(text.sections[0].value.as_str());
 
-                placing_event.send(PlacingEvent(format!("models/{name}#Scene0")));
+                let formatted = format!("models/{name}#Scene0");
+
+                recently_placed.0 = Some(formatted.clone());
+
+                placing_event.send(PlacingEvent(formatted.clone()));
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {

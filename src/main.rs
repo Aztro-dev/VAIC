@@ -1,3 +1,4 @@
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::PresentMode;
 use bevy_infinite_grid::*;
@@ -36,6 +37,8 @@ fn main() {
             MovementPlugin,
             UIPlugin,
             DefaultRaycastingPlugin,
+            LogDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin::default(),
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, toggle_grid_visibility)
