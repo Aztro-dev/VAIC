@@ -7,6 +7,7 @@ pub struct PlacingPlugin;
 impl Plugin for PlacingPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<PlacingState>()
+            .insert_resource(RecentlyPlaced(None))
             .add_plugins((
                 DefaultPickingPlugins
                     .build()
@@ -14,24 +15,29 @@ impl Plugin for PlacingPlugin {
                 bevy_transform_gizmo::TransformGizmoPlugin::default(),
             ))
             .add_systems(Update, (snap_to_closest, spawn_event))
-            .add_systems(Update, placing.run_if(in_state(PlacingState::Placing)));
+            .add_systems(
+                Update,
+                (placing, stop_placing_mode).run_if(in_state(PlacingState::Placing)),
+            );
     }
 }
+
+#[derive(Resource)]
+struct RecentlyPlaced(Option<String>);
 
 /// Takes in path to model
 #[derive(Event)]
 pub struct PlacingEvent(pub String);
-
-const PLACING_RADIUS: f32 = 30.0;
 
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
     mut placing_state: ResMut<NextState<PlacingState>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
+    mut recently_placed: ResMut<RecentlyPlaced>,
 ) {
     for event in event_reader.read() {
-        let new_position = Vec3::new(0.0, 0.0, 0.0);
+        let new_position = Vec3::new(0.0, -10000.0, 0.0); // Out of the camera's view lmfao
         let name = &event.0;
 
         let handle = asset_server.load(name);
@@ -44,6 +50,7 @@ fn spawn_event(
             CurrentlyPlacing {},
         ));
         placing_state.set(PlacingState::Placing);
+        recently_placed.0 = Some(name.clone());
     }
 }
 
@@ -51,7 +58,7 @@ fn spawn_event(
 struct CurrentlyPlacing;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
-enum PlacingState {
+pub enum PlacingState {
     Placing,
     #[default]
     NotPlacing,
@@ -60,6 +67,8 @@ enum PlacingState {
 #[derive(Component)]
 pub struct Part;
 
+const PLACING_RADIUS: f32 = 30.0;
+
 fn placing(
     mut commands: Commands,
     mut placing_query: Query<(&mut Transform, Entity), With<CurrentlyPlacing>>,
@@ -67,13 +76,14 @@ fn placing(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     mouse: Res<Input<MouseButton>>,
-    mut placing_state: ResMut<NextState<PlacingState>>,
+    recently_placed: Res<RecentlyPlaced>,
+    mut event_writer: EventWriter<PlacingEvent>,
 ) {
     for (mut transform, entity) in placing_query.iter_mut() {
         if mouse.just_pressed(MouseButton::Left) {
             commands.entity(entity).remove::<CurrentlyPlacing>();
             commands.get_entity(entity).unwrap().insert(Part {});
-            placing_state.set(PlacingState::NotPlacing);
+            event_writer.send(PlacingEvent(recently_placed.0.clone().unwrap()));
         }
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(
@@ -98,6 +108,22 @@ fn placing(
                 continue;
             }
             transform.translation = intersection_data.position();
+        }
+    }
+}
+
+fn stop_placing_mode(
+    keyboard: Res<Input<KeyCode>>,
+    mut placing_state: ResMut<NextState<PlacingState>>,
+    mut recently_placed: ResMut<RecentlyPlaced>,
+    mut commands: Commands,
+    mut placing_query: Query<Entity, With<CurrentlyPlacing>>,
+) {
+    if keyboard.just_pressed(KeyCode::Escape) {
+        placing_state.set(PlacingState::NotPlacing);
+        recently_placed.0 = None;
+        for part in placing_query.iter_mut() {
+            commands.entity(part).despawn_recursive();
         }
     }
 }

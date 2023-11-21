@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::placing::PlacingState;
+
 mod pause;
 use pause::PausePlugin;
 
@@ -23,7 +25,10 @@ pub enum UIState {
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<UIState>()
-            .add_systems(Update, handle_esc)
+            .add_systems(
+                Update,
+                handle_esc.run_if(not(in_state(PlacingState::Placing))),
+            )
             .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin));
     }
 }
