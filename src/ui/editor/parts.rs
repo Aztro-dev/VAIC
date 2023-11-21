@@ -34,7 +34,7 @@ pub fn button_system(
 
 fn get_model_name(text: &str) -> &str {
     match text {
-        "Duck" => "low_poly_duck_combined.glb",
+        "Duck" => "low_poly_duck.glb",
         "Cube" => "cube.glb",
         _ => "duck",
     }
