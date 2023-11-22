@@ -7,7 +7,7 @@ pub struct PlacingPlugin;
 impl Plugin for PlacingPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<PlacingState>()
-            .insert_resource(RecentlyPlaced(None))
+            .insert_resource(PlacedList(vec![]))
             .add_plugins((
                 DefaultPickingPlugins
                     .build()
@@ -23,18 +23,20 @@ impl Plugin for PlacingPlugin {
 }
 
 #[derive(Resource)]
-pub struct RecentlyPlaced(pub Option<String>);
+pub struct PlacedList(pub Vec<String>);
 
 /// Takes in path to model
 #[derive(Event)]
 pub struct PlacingEvent(pub String);
+
+#[derive(Component)]
+struct PartName(pub String);
 
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
     mut placing_state: ResMut<NextState<PlacingState>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut recently_placed: ResMut<RecentlyPlaced>,
 ) {
     for event in event_reader.read() {
         let new_position = Vec3::new(0.0, -10000.0, 0.0); // Out of the camera's view lmfao
@@ -49,9 +51,9 @@ fn spawn_event(
             },
             bevy_transform_gizmo::GizmoTransformable,
             CurrentlyPlacing {},
+            PartName(name.clone()),
         ));
         placing_state.set(PlacingState::Placing);
-        recently_placed.0 = Some(name.clone());
     }
 }
 
@@ -72,19 +74,20 @@ const PLACING_RADIUS: f32 = 30.0;
 
 fn placing(
     mut commands: Commands,
-    mut placing_query: Query<(&mut Transform, Entity), With<CurrentlyPlacing>>,
+    mut placing_query: Query<(&mut Transform, &PartName, Entity), With<CurrentlyPlacing>>,
     placed_query: Query<Entity, With<Part>>,
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     mouse: Res<Input<MouseButton>>,
-    recently_placed: Res<RecentlyPlaced>,
-    mut event_writer: EventWriter<PlacingEvent>,
+    mut recently_placed: ResMut<PlacedList>,
+    mut event_writer: EventWriter<PlacingEvent>, // To spawn multiple parts
 ) {
-    for (mut transform, entity) in placing_query.iter_mut() {
+    for (mut transform, name, entity) in placing_query.iter_mut() {
         if mouse.just_pressed(MouseButton::Left) {
             commands.entity(entity).remove::<CurrentlyPlacing>();
             commands.get_entity(entity).unwrap().insert(Part {});
-            event_writer.send(PlacingEvent(recently_placed.0.clone().unwrap()));
+            recently_placed.0.push((*name).0.clone());
+            event_writer.send(PlacingEvent(recently_placed.0[recently_placed.0.len() - 1].clone()));
         }
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(
@@ -116,13 +119,13 @@ fn placing(
 fn stop_placing_mode(
     keyboard: Res<Input<KeyCode>>,
     mut placing_state: ResMut<NextState<PlacingState>>,
-    mut recently_placed: ResMut<RecentlyPlaced>,
+    mut recently_placed: ResMut<PlacedList>,
     mut commands: Commands,
     mut placing_query: Query<Entity, With<CurrentlyPlacing>>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         placing_state.set(PlacingState::NotPlacing);
-        recently_placed.0 = None;
+        recently_placed.0.push(String::from(""));
         for part in placing_query.iter_mut() {
             commands.entity(part).despawn_recursive();
         }
