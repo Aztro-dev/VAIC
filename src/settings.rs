@@ -35,7 +35,7 @@ impl Settings {
     }
 
     fn write_changes(&mut self) {
-        if let Ok(mut file) = File::create(".settings.txt") {
+        if let Ok(mut file) = File::create(".settings.ron") {
             let settings_string = ron::ser::to_string(self).unwrap();
             file.write_all(settings_string.as_bytes())
                 .expect("Couldn't write to file in load_or_create_settings_file");
@@ -64,14 +64,14 @@ impl Plugin for SettingsPlugin {
 }
 
 fn load_or_create_settings_file(mut settings: ResMut<Settings>) {
-    if let Ok(mut file) = File::open(".settings.txt") {
+    if let Ok(mut file) = File::open(".settings.ron") {
         let mut contents = String::new();
         file.read_to_string(&mut contents).unwrap();
         let bruh: ron::error::SpannedResult<Settings> = ron::from_str(contents.as_str());
         *settings = bruh.expect("Couldn't convert to Settings in load_or_create_settings_file");
     } else {
-        let mut file = File::create(".settings.txt")
-            .expect("Couldn't create .settings.txt file in load_or_create_settings_file");
+        let mut file = File::create(".settings.ron")
+            .expect("Couldn't create .settings.ron file in load_or_create_settings_file");
         let settings_string = ron::ser::to_string(&(*settings)).unwrap();
         file.write_all(settings_string.as_bytes())
             .expect("Couldn't write to file in load_or_create_settings_file");
