@@ -43,9 +43,6 @@ fn handle_esc(
             UIState::Editor => {
                 ui_state.set(UIState::Pause);
             }
-            UIState::Pause => {
-                ui_state.set(UIState::Editor);
-            }
             _ => {
                 ui_state.set(UIState::Editor);
             }

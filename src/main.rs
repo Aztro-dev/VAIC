@@ -1,7 +1,9 @@
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::PresentMode;
-use bevy_infinite_grid::*;
+use bevy_infinite_grid::{
+    InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
+};
 use bevy_mod_picking::low_latency_window_plugin;
 use bevy_mod_raycast::prelude::*;
 
@@ -38,7 +40,7 @@ fn main() {
             UIPlugin,
             DefaultRaycastingPlugin,
             LogDiagnosticsPlugin::default(),
-            FrameTimeDiagnosticsPlugin::default(),
+            FrameTimeDiagnosticsPlugin,
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, toggle_grid_visibility)
@@ -68,7 +70,7 @@ fn setup(
         PbrBundle {
             mesh: meshes.add(
                 shape::Plane {
-                    size: 1000000.0, // Basically infinite if you really think about it
+                    size: 1_000_000.0, // Basically infinite if you really think about it
                     ..default()
                 }
                 .into(),

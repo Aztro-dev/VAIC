@@ -32,7 +32,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     display: Display::Flex,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("444444").unwrap().into()),
+                background_color: BackgroundColor(Color::hex("444444").unwrap()),
                 ..default()
             },
             SettingsUIComponent,
@@ -47,7 +47,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::hex("777777").unwrap().into()),
+                    background_color: BackgroundColor(Color::hex("777777").unwrap()),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -74,7 +74,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::hex("777777").unwrap().into()),
+                    background_color: BackgroundColor(Color::hex("777777").unwrap()),
                     ..default()
                 })
                 .with_children(|parent| {
@@ -113,7 +113,7 @@ fn button_system(
             Interaction::Pressed => {
                 match text.sections[0].value.as_str() {
                     "Exit" => {
-                        ui_state.set(UIState::Editor);
+                        ui_state.set(UIState::Pause);
                     }
                     "Resume" => {
                         ui_state.set(UIState::Editor);

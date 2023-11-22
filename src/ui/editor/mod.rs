@@ -34,7 +34,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     display: Display::Flex,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("444444").unwrap().into()),
+                background_color: BackgroundColor(Color::hex("444444").unwrap()),
                 ..default()
             },
             EditorUIComponent,
@@ -43,7 +43,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
             // Title "Parts"
             parent
                 .spawn(NodeBundle {
-                    background_color: BackgroundColor(Color::hex("666666").unwrap().into()),
+                    background_color: BackgroundColor(Color::hex("666666").unwrap()),
                     style: Style {
                         width: Val::Percent(100.0),
                         align_items: AlignItems::Center,
@@ -83,7 +83,7 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                             align_items: AlignItems::Center,
                             ..default()
                         },
-                        background_color: BackgroundColor(Color::hex("777777").unwrap().into()),
+                        background_color: BackgroundColor(Color::hex("777777").unwrap()),
                         ..default()
                     })
                     .with_children(|parent| {

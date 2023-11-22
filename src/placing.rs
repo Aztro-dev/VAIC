@@ -99,7 +99,7 @@ fn placing(
                     ..default()
                 },
             );
-            if intersection_array.len() == 0 {
+            if intersection_array.is_empty() {
                 transform.translation = cursor_ray.position(PLACING_RADIUS);
                 continue;
             }
