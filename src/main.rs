@@ -1,6 +1,6 @@
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
-use bevy::window::PresentMode;
+use bevy::window::{PresentMode, WindowTheme};
 use bevy_infinite_grid::{
     InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
 };
@@ -29,8 +29,10 @@ fn main() {
                         title: "VAIC".into(),
                         fit_canvas_to_parent: true,
                         present_mode: PresentMode::AutoNoVsync,
+                        window_theme: Some(WindowTheme::Dark),
                         ..default()
                     }),
+                    close_when_requested: true,
                     ..default()
                 })
                 .set(low_latency_window_plugin()),
