@@ -6,6 +6,8 @@ use smooth_bevy_cameras::controllers::orbit::OrbitCameraController;
 use smooth_bevy_cameras::controllers::orbit::OrbitCameraPlugin;
 use smooth_bevy_cameras::LookTransformPlugin;
 
+use crate::settings::Settings;
+
 pub struct MovementPlugin;
 
 impl Plugin for MovementPlugin {
@@ -16,15 +18,16 @@ impl Plugin for MovementPlugin {
     }
 }
 
-fn spawn_camera(mut commands: Commands) {
+fn spawn_camera(mut commands: Commands, settings: Res<Settings>) {
     commands.spawn(Camera3dBundle::default()).insert((
         GizmoPickSource::default(),
         GridShadowCamera,
         OrbitCameraBundle::new(
             OrbitCameraController {
-                mouse_rotate_sensitivity: Vec2::splat(0.8),
-                mouse_translate_sensitivity: Vec2::splat(0.2),
-                mouse_wheel_zoom_sensitivity: 1.0,
+                mouse_rotate_sensitivity: settings.rotate_sensitivity,
+                mouse_translate_sensitivity: settings.translate_sensitivity,
+                mouse_wheel_zoom_sensitivity: settings.zoom_sensitivity,
+                control_state: settings.get_control_state(),
                 ..default()
             },
             Vec3::new(-7.0, 7.5, 10.0),
@@ -37,11 +40,13 @@ fn spawn_camera(mut commands: Commands) {
 fn switch_control_state(
     mut query: Query<&mut OrbitCameraController>,
     keyboard: Res<Input<KeyCode>>,
+    mut settings: ResMut<Settings>,
 ) {
     if !keyboard.just_pressed(KeyCode::P) {
         return;
     }
     if let Ok(mut controller) = query.get_single_mut() {
         controller.toggle_control_state();
+        settings.set_control_state(controller.control_state);
     }
 }

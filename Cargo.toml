@@ -13,3 +13,5 @@ bevy_transform_gizmo = { git = "https://github.com/rszemplinski/bevy_transform_g
 bevy_mod_picking = "0.17.0"
 bevy_prototype_lyon = "0.10.0"
 bevy_mod_raycast = "0.16.0"
+serde = "1.0.193"
+ron = "0.8.1"

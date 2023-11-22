@@ -17,6 +17,9 @@ use movement::MovementPlugin;
 mod ui;
 use ui::UIPlugin;
 
+mod settings;
+use settings::SettingsPlugin;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
@@ -40,6 +43,7 @@ fn main() {
             InfiniteGridPlugin,
             MovementPlugin,
             UIPlugin,
+            SettingsPlugin,
             DefaultRaycastingPlugin,
             LogDiagnosticsPlugin::default(),
             FrameTimeDiagnosticsPlugin,
