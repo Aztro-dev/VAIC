@@ -8,7 +8,7 @@ use pause::PausePlugin;
 mod settings;
 use settings::SettingsPlugin;
 
-mod editor;
+pub mod editor;
 use editor::EditorPlugin;
 
 pub struct UIPlugin;

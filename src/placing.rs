@@ -153,6 +153,7 @@ fn undo_move(
     mut commands: Commands,
     mut placed_list: ResMut<PlacedList>,
     keyboard: Res<Input<KeyCode>>,
+    mut refresh_parts_list_writer: EventWriter<crate::ui::editor::parts_list::RefreshPartsList>,
 ) {
     if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
         if placed_list.0.is_empty() {
@@ -172,6 +173,22 @@ fn undo_move(
         }
         commands.entity((*last_move).entity).despawn_recursive();
         placed_list.0.remove(last_move_index);
+
+        let mut index_list = vec![];
+        for (index, curr_move) in placed_list.0.iter().enumerate().rev() {
+            if curr_move.name.is_empty() && curr_move.entity == Entity::PLACEHOLDER {
+                index_list.push(index);
+            }
+        }
+        for index in index_list.iter() {
+            placed_list.0.remove(*index);
+        }
+        placed_list.0.push(PlacedPart {
+            name: String::from(""),
+            entity: Entity::PLACEHOLDER,
+        });
+
+        refresh_parts_list_writer.send(crate::ui::editor::parts_list::RefreshPartsList);
     }
 }
 

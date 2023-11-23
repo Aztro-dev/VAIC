@@ -4,23 +4,28 @@ use bevy::prelude::*;
 mod part_selector;
 use part_selector::spawn_part_selector;
 
-mod parts_list;
+pub mod parts_list;
 use parts_list::spawn_parts_list;
 
 pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(UIState::Editor),
-            (spawn_part_selector, spawn_parts_list),
-        )
-        .add_systems(OnExit(UIState::Editor), despawn_ui)
-        .add_systems(
-            Update,
-            (part_selector::button_system, parts_list::update_parts_list)
-                .run_if(in_state(UIState::Editor)),
-        );
+        app.add_event::<parts_list::RefreshPartsList>()
+            .add_systems(
+                OnEnter(UIState::Editor),
+                (spawn_part_selector, spawn_parts_list),
+            )
+            .add_systems(OnExit(UIState::Editor), despawn_ui)
+            .add_systems(
+                Update,
+                (
+                    part_selector::button_system,
+                    parts_list::update_parts_list,
+                    parts_list::refresh_parts_list,
+                )
+                    .run_if(in_state(UIState::Editor)),
+            );
     }
 }
 
