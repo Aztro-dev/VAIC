@@ -62,7 +62,10 @@ pub fn spawn_parts_list(
             // End Parts header
             // Show already placed parts
             for part in placed_already.0.iter() {
-                if part.is_empty() {
+                if part.name.is_empty() {
+                    continue;
+                }
+                if part.entity == Entity::PLACEHOLDER {
                     continue;
                 }
                 parent
@@ -82,7 +85,7 @@ pub fn spawn_parts_list(
                             TextBundle {
                                 text: Text::from_section(
                                     crate::ui::editor::part_selector::reverse_model_name(
-                                        part.to_string(),
+                                        part.name.clone(),
                                     ),
                                     TextStyle {
                                         font: asset_server.load("FiraMonoNerdFontMono-Bold.otf"),
@@ -111,7 +114,10 @@ pub fn update_parts_list(
     if recently_placed.0.is_empty() {
         return;
     }
-    if recently_placed.0[recently_placed.0.len() - 1].is_empty() {
+    if recently_placed.0[recently_placed.0.len() - 1]
+        .name
+        .is_empty()
+    {
         return;
     }
     let parts_list = parts_list_query.get_single_mut().unwrap();
@@ -131,7 +137,7 @@ pub fn update_parts_list(
     };
 
     let recently_placed_stripped = crate::ui::editor::part_selector::reverse_model_name(
-        recently_placed.0[recently_placed.0.len() - 1].clone(),
+        recently_placed.0[recently_placed.0.len() - 1].name.clone(),
     );
     let new_part_text = (
         TextBundle {

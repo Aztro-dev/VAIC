@@ -18,12 +18,22 @@ impl Plugin for PlacingPlugin {
             .add_systems(
                 Update,
                 (placing, stop_placing_mode).run_if(in_state(PlacingState::Placing)),
+            )
+            .add_systems(
+                Update,
+                undo_move.run_if(in_state(crate::ui::UIState::Editor)),
             );
     }
 }
 
+#[derive(Debug)]
+pub struct PlacedPart {
+    pub name: String,
+    pub entity: Entity,
+}
+
 #[derive(Resource)]
-pub struct PlacedList(pub Vec<String>);
+pub struct PlacedList(pub Vec<PlacedPart>);
 
 /// Takes in path to model
 #[derive(Event)]
@@ -86,8 +96,12 @@ fn placing(
         if mouse.just_pressed(MouseButton::Left) {
             commands.entity(entity).remove::<CurrentlyPlacing>();
             commands.get_entity(entity).unwrap().insert(Part {});
-            recently_placed.0.push((*name).0.clone());
-            event_writer.send(PlacingEvent(recently_placed.0[recently_placed.0.len() - 1].clone()));
+            recently_placed.0.push(PlacedPart {
+                name: (*name).0.clone(),
+                entity,
+            });
+            event_writer
+                .send(PlacingEvent(recently_placed.0[recently_placed.0.len() - 1].name.clone()));
         }
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(
@@ -125,10 +139,39 @@ fn stop_placing_mode(
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         placing_state.set(PlacingState::NotPlacing);
-        recently_placed.0.push(String::from(""));
+        recently_placed.0.push(PlacedPart {
+            name: String::from(""),
+            entity: Entity::PLACEHOLDER,
+        });
         for part in placing_query.iter_mut() {
             commands.entity(part).despawn_recursive();
         }
+    }
+}
+
+fn undo_move(
+    mut commands: Commands,
+    mut placed_list: ResMut<PlacedList>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
+        if placed_list.0.is_empty() {
+            return;
+        }
+        let mut last_move = &placed_list.0[placed_list.0.len() - 1];
+        let mut last_move_index = placed_list.0.len();
+        for (index, curr_move) in placed_list.0.iter().enumerate().rev() {
+            if !curr_move.name.is_empty() {
+                last_move = curr_move;
+                last_move_index = index;
+                break;
+            }
+        }
+        if last_move_index >= placed_list.0.len() {
+            return;
+        }
+        commands.entity((*last_move).entity).despawn_recursive();
+        placed_list.0.remove(last_move_index);
     }
 }
 
