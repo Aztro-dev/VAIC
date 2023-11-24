@@ -21,6 +21,7 @@ pub fn spawn_parts_list(
                     align_items: AlignItems::Center,
                     flex_direction: FlexDirection::Column,
                     display: Display::Flex,
+                    overflow: Overflow::clip_y(),
                     ..default()
                 },
                 background_color: BackgroundColor(Color::hex("444444").unwrap()),
@@ -75,9 +76,12 @@ pub fn spawn_parts_list(
                             width: Val::Percent(100.0),
                             align_items: AlignItems::Center,
                             justify_content: JustifyContent::Center,
+                            overflow: Overflow::clip_y(),
                             display: Display::Flex,
+                            border: UiRect::bottom(Val::Px(1.0)),
                             ..default()
                         },
+                        border_color: BorderColor(Color::hex("555555").unwrap()),
                         ..default()
                     })
                     .with_children(|parent| {
@@ -185,6 +189,7 @@ pub fn refresh_parts_list(
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     display: Display::Flex,
+                    overflow: Overflow::clip_y(),
                     ..default()
                 },
                 ..default()

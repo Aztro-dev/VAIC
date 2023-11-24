@@ -33,6 +33,7 @@ pub fn spawn_part_selector(mut commands: Commands, asset_server: Res<AssetServer
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         display: Display::Flex,
+                        overflow: Overflow::clip_y(),
 
                         ..default()
                     },
@@ -127,7 +128,7 @@ pub fn button_system(
     }
 }
 
-fn get_model_name(text: &str) -> &str {
+pub fn get_model_name(text: &str) -> &str {
     match text {
         "Duck" => "low_poly_duck.glb",
         "Cube" => "cube.glb",

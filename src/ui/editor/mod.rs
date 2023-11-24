@@ -12,6 +12,7 @@ pub struct EditorPlugin;
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<parts_list::RefreshPartsList>()
+            .add_systems(Startup, load_models_early)
             .add_systems(
                 OnEnter(UIState::Editor),
                 (spawn_part_selector, spawn_parts_list),
@@ -35,5 +36,13 @@ struct EditorUIComponent;
 fn despawn_ui(mut commands: Commands, mut ui: Query<Entity, With<EditorUIComponent>>) {
     for entity in ui.iter_mut() {
         commands.entity(entity).despawn_recursive();
+    }
+}
+
+fn load_models_early(asset_server: Res<AssetServer>) {
+    for name in part_selector::get_parts().iter() {
+        let file_path = part_selector::get_model_name(name);
+
+        let _: Handle<Scene> = asset_server.load(format!("models/{file_path}#Scene0"));
     }
 }
