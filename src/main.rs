@@ -1,6 +1,6 @@
-use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowTheme};
+use bevy_fps_counter::FpsCounterPlugin;
 use bevy_infinite_grid::{
     InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
 };
@@ -45,8 +45,7 @@ fn main() {
             UIPlugin,
             SettingsPlugin,
             DefaultRaycastingPlugin,
-            LogDiagnosticsPlugin::default(),
-            FrameTimeDiagnosticsPlugin,
+            FpsCounterPlugin,
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, toggle_grid_visibility)

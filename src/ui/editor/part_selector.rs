@@ -91,7 +91,11 @@ pub fn spawn_part_selector(mut commands: Commands, asset_server: Res<AssetServer
 }
 
 pub fn get_parts() -> Vec<String> {
-    return vec![String::from("Duck"), String::from("Cube")];
+    return vec![
+        String::from("Duck"),
+        String::from("Cube"),
+        String::from("Penguin"),
+    ];
 }
 
 pub fn button_system(
@@ -127,6 +131,7 @@ fn get_model_name(text: &str) -> &str {
     match text {
         "Duck" => "low_poly_duck.glb",
         "Cube" => "cube.glb",
+        "Penguin" => "penguin.glb",
         _ => "duck",
     }
 }
@@ -135,6 +140,7 @@ pub fn reverse_model_name(text: String) -> String {
     match text.as_str() {
         "models/low_poly_duck.glb#Scene0" => String::from("Duck"),
         "models/cube.glb#Scene0" => String::from("Cube"),
+        "models/penguin.glb#Scene0" => String::from("Penguin"),
         _ => {
             panic!();
         }
