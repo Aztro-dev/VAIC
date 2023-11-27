@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy_mod_picking::prelude::*;
 use bevy_mod_raycast::prelude::*;
 
+use crate::ui::editor::handle::ModelHandles;
+
 pub struct PlacingPlugin;
 
 impl Plugin for PlacingPlugin {
@@ -37,7 +39,7 @@ pub struct PlacedList(pub Vec<PlacedPart>);
 
 /// Takes in path to model
 #[derive(Event)]
-pub struct PlacingEvent(pub String);
+pub struct PlacingEvent(pub String, pub Handle<Scene>);
 
 #[derive(Component)]
 struct PartName(pub String);
@@ -46,13 +48,12 @@ fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
     mut placing_state: ResMut<NextState<PlacingState>>,
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
 ) {
     for event in event_reader.read() {
         let new_position = Vec3::new(0.0, -10000.0, 0.0); // Out of the camera's view lmfao
         let name = &event.0;
+        let handle = event.1.clone();
 
-        let handle = asset_server.load(name);
         commands.spawn((
             SceneBundle {
                 scene: handle,
@@ -91,6 +92,7 @@ fn placing(
     mouse: Res<Input<MouseButton>>,
     mut recently_placed: ResMut<PlacedList>,
     mut event_writer: EventWriter<PlacingEvent>, // To spawn multiple parts
+    model_handles: Res<ModelHandles>,
 ) {
     for (mut transform, name, entity) in placing_query.iter_mut() {
         if mouse.just_pressed(MouseButton::Left) {
@@ -100,8 +102,14 @@ fn placing(
                 name: (*name).0.clone(),
                 entity,
             });
-            event_writer
-                .send(PlacingEvent(recently_placed.0[recently_placed.0.len() - 1].name.clone()));
+            event_writer.send(PlacingEvent(
+                recently_placed.0[recently_placed.0.len() - 1].name.clone(),
+                crate::ui::editor::handle::get_model_handle(
+                    recently_placed.0[recently_placed.0.len() - 1].name.clone(),
+                    (*model_handles).clone(),
+                )
+                .clone(),
+            ));
         }
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(

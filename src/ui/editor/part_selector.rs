@@ -106,6 +106,7 @@ pub fn button_system(
     >,
     mut text_query: Query<&mut Text>,
     mut placing_event: EventWriter<PlacingEvent>,
+    model_handles: Res<crate::ui::editor::handle::ModelHandles>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
         let text = text_query.get_mut(children[0]).unwrap();
@@ -115,7 +116,12 @@ pub fn button_system(
 
                 let formatted = format!("models/{name}#Scene0");
 
-                placing_event.send(PlacingEvent(formatted.clone()));
+                let model_handle = crate::ui::editor::handle::get_model_handle(
+                    formatted.clone(),
+                    (*model_handles).clone(),
+                );
+
+                placing_event.send(PlacingEvent(formatted.clone(), model_handle.clone()));
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {
