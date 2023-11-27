@@ -96,6 +96,8 @@ pub fn get_parts() -> Vec<String> {
         String::from("Duck"),
         String::from("Cube"),
         String::from("Penguin"),
+        String::from("2x25 C-Channel"),
+        String::from("2x1 C-Channel"),
     ];
 }
 
@@ -139,6 +141,8 @@ pub fn get_model_name(text: &str) -> &str {
         "Duck" => "low_poly_duck.glb",
         "Cube" => "cube.glb",
         "Penguin" => "penguin.glb",
+        "2x25 C-Channel" => "c-channel-1x2x1x25.glb",
+        "2x1 C-Channel" => "c-channel-1x2x1x1.glb",
         _ => "duck",
     }
 }
@@ -148,8 +152,10 @@ pub fn reverse_model_name(text: String) -> String {
         "models/low_poly_duck.glb#Scene0" => String::from("Duck"),
         "models/cube.glb#Scene0" => String::from("Cube"),
         "models/penguin.glb#Scene0" => String::from("Penguin"),
+        "models/c-channel-1x2x1x25.glb#Scene0" => String::from("2x25 C-Channel"),
+        "models/c-channel-1x2x1x1.glb#Scene0" => String::from("2x1 C-Channel"),
         _ => {
-            panic!();
+            panic!("{}", text.as_str());
         }
     }
 }
