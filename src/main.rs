@@ -59,7 +59,7 @@ fn setup(
 ) {
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 10.0,
+        brightness: 3.0,
     });
 
     commands.spawn(InfiniteGridBundle {
@@ -80,7 +80,7 @@ fn setup(
                 }
                 .into(),
             ),
-            transform: Transform::from_xyz(0.0, -0.1, 0.0),
+            transform: Transform::from_xyz(0.0, 0.0, 0.0),
             material: materials.add(Color::rgba(1.0, 0.0, 0.0, 0.0).into()),
             visibility: Visibility::Visible,
             ..default()
