@@ -59,7 +59,7 @@ pub struct SettingsPlugin;
 impl Plugin for SettingsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Settings>()
-            .add_systems(Startup, load_or_create_settings_file);
+            .add_systems(PreStartup, load_or_create_settings_file);
     }
 }
 

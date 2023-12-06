@@ -57,9 +57,10 @@ fn test_constraints(
     commands.spawn((
         PbrBundle {
             visibility: Visibility::Hidden,
-            mesh: meshes.add(Mesh::from(shape::Torus {
-                radius: 0.5,
-                ring_radius: 0.02,
+            mesh: meshes.add(Mesh::from(shape::Cylinder {
+                radius: 0.10,
+                height: 0.05,
+                segments: 256,
                 ..default()
             })),
             material: materials.add(StandardMaterial {
