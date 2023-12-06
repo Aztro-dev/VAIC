@@ -10,7 +10,10 @@ impl Plugin for ConstraintPlugin {
             .add_systems(
                 Update,
                 exit_constrain.run_if(in_state(ConstrainState::Constraining)),
-            );
+            )
+            .add_systems(Startup, test_constraints)
+            .add_systems(OnEnter(ConstrainState::Constraining), show_constraints)
+            .add_systems(OnExit(ConstrainState::Constraining), hide_constraints);
     }
 }
 
@@ -20,6 +23,9 @@ pub enum ConstrainState {
     #[default]
     NotConstraining,
 }
+
+#[derive(Component)]
+pub struct ConstrainComponent;
 
 fn check_for_c(
     keyboard: Res<Input<KeyCode>>,
@@ -40,5 +46,40 @@ fn exit_constrain(
     if keyboard.just_pressed(KeyCode::Escape) {
         placing_state.set(PlacingState::NotPlacing);
         constrain_state.set(ConstrainState::NotConstraining);
+    }
+}
+
+fn test_constraints(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    commands.spawn((
+        PbrBundle {
+            visibility: Visibility::Hidden,
+            mesh: meshes.add(Mesh::from(shape::Torus {
+                radius: 0.5,
+                ring_radius: 0.02,
+                ..default()
+            })),
+            material: materials.add(StandardMaterial {
+                base_color: Color::RED,
+                ..default()
+            }),
+            ..default()
+        },
+        ConstrainComponent {},
+    ));
+}
+
+fn show_constraints(mut constraints_query: Query<&mut Visibility, With<ConstrainComponent>>) {
+    for mut visibility in constraints_query.iter_mut() {
+        *visibility = Visibility::Visible;
+    }
+}
+
+fn hide_constraints(mut constraints_query: Query<&mut Visibility, With<ConstrainComponent>>) {
+    for mut visibility in constraints_query.iter_mut() {
+        *visibility = Visibility::Hidden;
     }
 }

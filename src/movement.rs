@@ -13,7 +13,7 @@ pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins((LookTransformPlugin, OrbitCameraPlugin::default()))
-            .add_systems(Update, switch_control_state)
+            .add_systems(Update, (switch_control_state, switch_projection))
             .add_systems(Startup, spawn_camera);
     }
 }
@@ -48,5 +48,24 @@ fn switch_control_state(
     if let Ok(mut controller) = query.get_single_mut() {
         controller.toggle_control_state();
         settings.set_control_state(controller.control_state);
+    }
+}
+
+fn switch_projection(
+    mut camera_query: Query<&mut Projection, With<Camera3d>>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    if !keyboard.just_pressed(KeyCode::O) {
+        return;
+    }
+    for mut projection in camera_query.iter_mut() {
+        *projection = match *projection {
+            Projection::Perspective(_) => Projection::Orthographic(OrthographicProjection {
+                scale: 5.5,
+                scaling_mode: bevy::render::camera::ScalingMode::FixedVertical(2.0),
+                ..default()
+            }),
+            Projection::Orthographic(_) => Projection::default(),
+        }
     }
 }
