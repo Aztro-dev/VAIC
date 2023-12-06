@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy_mod_picking::prelude::*;
 use bevy_mod_raycast::prelude::*;
 
+use crate::constraints::ConstrainState;
+
 use crate::ui::editor::handle::ModelHandles;
 
 pub struct PlacingPlugin;
@@ -16,11 +18,18 @@ impl Plugin for PlacingPlugin {
                     .disable::<DebugPickingPlugin>(),
                 bevy_transform_gizmo::TransformGizmoPlugin::default(),
             ))
-            .add_systems(Update, (snap_to_closest, spawn_event))
             .add_systems(
                 Update,
-                (placing, stop_placing_mode).run_if(in_state(PlacingState::Placing)),
+                (snap_to_closest, spawn_event).run_if(not(in_state(ConstrainState::Constraining))),
             )
+            .add_systems(
+                Update,
+                (placing, stop_placing_mode).run_if(
+                    in_state(PlacingState::Placing)
+                        .and_then(not(in_state(ConstrainState::Constraining))),
+                ),
+            )
+            .add_systems(OnExit(PlacingState::Placing), despawn_placing)
             .add_systems(
                 Update,
                 undo_move.run_if(in_state(crate::ui::UIState::Editor)),
@@ -76,6 +85,7 @@ pub enum PlacingState {
     Placing,
     #[default]
     NotPlacing,
+    PlacingDisabled,
 }
 
 #[derive(Component)]
@@ -217,5 +227,14 @@ fn snap_to_closest(
             to_euler.1 - to_euler.1 % SNAP_ROT,
             to_euler.2 - to_euler.2 % SNAP_ROT,
         );
+    }
+}
+
+fn despawn_placing(
+    mut commands: Commands,
+    currently_placing: Query<Entity, With<CurrentlyPlacing>>,
+) {
+    for entity in currently_placing.iter() {
+        commands.entity(entity).despawn_recursive();
     }
 }

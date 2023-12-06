@@ -20,6 +20,9 @@ use ui::UIPlugin;
 mod settings;
 use settings::SettingsPlugin;
 
+mod constraints;
+use constraints::ConstraintPlugin;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
@@ -44,6 +47,7 @@ fn main() {
             MovementPlugin,
             UIPlugin,
             SettingsPlugin,
+            ConstraintPlugin,
             DefaultRaycastingPlugin,
             FpsCounterPlugin,
         ))

@@ -1,3 +1,4 @@
+use crate::constraints::ConstrainState;
 use crate::placing::PlacingEvent;
 use crate::ui::editor::part_selector;
 use crate::ui::editor::EditorUIComponent;
@@ -109,21 +110,24 @@ pub fn button_system(
     mut text_query: Query<&mut Text>,
     mut placing_event: EventWriter<PlacingEvent>,
     model_handles: Res<crate::ui::editor::handle::ModelHandles>,
+    constrain_state: Res<State<ConstrainState>>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
         let text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
-                let name = get_model_name(text.sections[0].value.as_str());
+                if *constrain_state != ConstrainState::Constraining {
+                    let name = get_model_name(text.sections[0].value.as_str());
 
-                let formatted = format!("models/{name}#Scene0");
+                    let formatted = format!("models/{name}#Scene0");
 
-                let model_handle = crate::ui::editor::handle::get_model_handle(
-                    formatted.clone(),
-                    (*model_handles).clone(),
-                );
+                    let model_handle = crate::ui::editor::handle::get_model_handle(
+                        formatted.clone(),
+                        (*model_handles).clone(),
+                    );
 
-                placing_event.send(PlacingEvent(formatted.clone(), model_handle.clone()));
+                    placing_event.send(PlacingEvent(formatted.clone(), model_handle.clone()));
+                }
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {

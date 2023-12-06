@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::placing::PlacingState;
+use crate::{constraints::ConstrainState, placing::PlacingState};
 
 mod pause;
 use pause::PausePlugin;
@@ -27,7 +27,10 @@ impl Plugin for UIPlugin {
         app.add_state::<UIState>()
             .add_systems(
                 Update,
-                handle_esc.run_if(not(in_state(PlacingState::Placing))),
+                handle_esc.run_if(
+                    not(in_state(PlacingState::Placing))
+                        .and_then(not(in_state(ConstrainState::Constraining))),
+                ),
             )
             .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin));
     }
