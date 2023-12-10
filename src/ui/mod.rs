@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_round_ui::prelude::*;
 
 use crate::{constraints::ConstrainState, placing::PlacingState};
 
@@ -10,6 +11,8 @@ use settings::SettingsPlugin;
 
 pub mod editor;
 use editor::EditorPlugin;
+
+pub const UI_RADIUS: f32 = 20.0;
 
 pub struct UIPlugin;
 
@@ -32,7 +35,7 @@ impl Plugin for UIPlugin {
                         .and_then(not(in_state(ConstrainState::Constraining))),
                 ),
             )
-            .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin));
+            .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin, RoundUiPlugin));
     }
 }
 

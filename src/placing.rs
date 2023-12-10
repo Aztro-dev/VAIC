@@ -20,7 +20,8 @@ impl Plugin for PlacingPlugin {
             ))
             .add_systems(
                 Update,
-                (snap_to_closest, spawn_event).run_if(not(in_state(ConstrainState::Constraining))),
+                // (snap_to_closest, spawn_event).run_if(not(in_state(ConstrainState::Constraining))),
+                spawn_event.run_if(not(in_state(ConstrainState::Constraining))),
             )
             .add_systems(
                 Update,
@@ -210,25 +211,25 @@ fn undo_move(
     }
 }
 
-const SNAP_DIST: f32 = 0.1;
-const SNAP_ROT: f32 = std::f32::consts::PI / 24.0;
-
-fn snap_to_closest(
-    mut movable_query: Query<&mut Transform, With<bevy_transform_gizmo::GizmoTransformable>>,
-) {
-    for mut transform in movable_query.iter_mut() {
-        transform.translation.x = transform.translation.x - transform.translation.x % SNAP_DIST;
-        transform.translation.y = transform.translation.y - transform.translation.y % SNAP_DIST;
-        transform.translation.z = transform.translation.z - transform.translation.z % SNAP_DIST;
-        let to_euler = transform.rotation.to_euler(EulerRot::XYZ);
-        transform.rotation = Quat::from_euler(
-            EulerRot::XYZ,
-            to_euler.0 - to_euler.0 % SNAP_ROT,
-            to_euler.1 - to_euler.1 % SNAP_ROT,
-            to_euler.2 - to_euler.2 % SNAP_ROT,
-        );
-    }
-}
+// const SNAP_DIST: f32 = 0.1;
+// const SNAP_ROT: f32 = std::f32::consts::PI / 24.0;
+//
+// fn snap_to_closest(
+//     mut movable_query: Query<&mut Transform, With<bevy_transform_gizmo::GizmoTransformable>>,
+// ) {
+//     for mut transform in movable_query.iter_mut() {
+//         transform.translation.x = transform.translation.x - transform.translation.x % SNAP_DIST;
+//         transform.translation.y = transform.translation.y - transform.translation.y % SNAP_DIST;
+//         transform.translation.z = transform.translation.z - transform.translation.z % SNAP_DIST;
+//         let to_euler = transform.rotation.to_euler(EulerRot::XYZ);
+//         transform.rotation = Quat::from_euler(
+//             EulerRot::XYZ,
+//             to_euler.0 - to_euler.0 % SNAP_ROT,
+//             to_euler.1 - to_euler.1 % SNAP_ROT,
+//             to_euler.2 - to_euler.2 % SNAP_ROT,
+//         );
+//     }
+// }
 
 fn despawn_placing(
     mut commands: Commands,

@@ -1,6 +1,7 @@
 use super::UIState;
 use bevy::app::AppExit;
 use bevy::prelude::*;
+use bevy_round_ui::prelude::*;
 
 pub struct PausePlugin;
 
@@ -18,10 +19,16 @@ struct PauseUIComponent;
 const BUTTON_WIDTH: f32 = 80.0;
 const BUTTON_HEIGHT: f32 = 20.0;
 
-fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn spawn_ui(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut materials: ResMut<Assets<RoundUiMaterial>>,
+) {
+    let window_width: f32 = 400.0;
+    let window_height: f32 = 800.0;
     commands
         .spawn((
-            NodeBundle {
+            MaterialNodeBundle {
                 style: Style {
                     width: Val::Percent(40.0),
                     height: Val::Percent(80.0),
@@ -33,7 +40,12 @@ fn spawn_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                     display: Display::Flex,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("444444").unwrap()),
+                material: materials.add(RoundUiMaterial {
+                    background_color: Color::hex("444444").unwrap(),
+                    border_radius: RoundUiBorder::all(crate::ui::UI_RADIUS).into(),
+                    size: Vec2::new(window_width, window_height),
+                    ..default()
+                }),
                 ..default()
             },
             PauseUIComponent,

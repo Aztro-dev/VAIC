@@ -1,11 +1,15 @@
 use crate::placing::PlacingState;
 use bevy::prelude::*;
 
+mod ui;
+use ui::ConstraintUiPlugin;
+
 pub struct ConstraintPlugin;
 
 impl Plugin for ConstraintPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<ConstrainState>()
+            .add_plugins(ConstraintUiPlugin)
             .add_systems(Update, check_for_c)
             .add_systems(
                 Update,
@@ -60,7 +64,7 @@ fn test_constraints(
             mesh: meshes.add(Mesh::from(shape::Cylinder {
                 radius: 0.10,
                 height: 0.05,
-                segments: 256,
+                resolution: 64,
                 ..default()
             })),
             material: materials.add(StandardMaterial {
