@@ -123,8 +123,10 @@ pub fn button_system(
     mut placing_event: EventWriter<PlacingEvent>,
     model_handles: Res<crate::ui::editor::handle::ModelHandles>,
     constrain_state: Res<State<ConstrainState>>,
+    mut window_query: Query<&mut Window>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
+        let mut window = window_query.get_single_mut().unwrap();
         let text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
@@ -143,9 +145,11 @@ pub fn button_system(
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {
+                (*window).cursor.icon = CursorIcon::Hand;
                 *color = Color::hex("999999").unwrap().into();
             }
             Interaction::None => {
+                (*window).cursor.icon = CursorIcon::Default;
                 *color = Color::hex("777777").unwrap().into();
             }
         }

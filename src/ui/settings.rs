@@ -118,11 +118,14 @@ fn button_system(
     >,
     mut text_query: Query<&mut Text>,
     mut ui_state: ResMut<NextState<UIState>>,
+    mut window_query: Query<&mut Window>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
+        let mut window = window_query.get_single_mut().unwrap();
         let text = text_query.get_mut(children[0]).unwrap();
         match *interaction {
             Interaction::Pressed => {
+                (*window).cursor.icon = CursorIcon::Default;
                 match text.sections[0].value.as_str() {
                     "Exit" => {
                         ui_state.set(UIState::Pause);
@@ -137,9 +140,11 @@ fn button_system(
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {
+                (*window).cursor.icon = CursorIcon::Hand;
                 *color = Color::hex("999999").unwrap().into();
             }
             Interaction::None => {
+                (*window).cursor.icon = CursorIcon::Default;
                 *color = Color::hex("777777").unwrap().into();
             }
         }
