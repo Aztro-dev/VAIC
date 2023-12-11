@@ -1,5 +1,7 @@
+use crate::cursor::CursorDelta;
+
 use super::ConstrainState;
-use bevy::{input::mouse::MouseMotion, prelude::*, ui::RelativeCursorPosition};
+use bevy::{prelude::*, ui::RelativeCursorPosition};
 use bevy_round_ui::prelude::*;
 
 pub struct ConstraintUiPlugin;
@@ -9,7 +11,7 @@ impl Plugin for ConstraintUiPlugin {
         app.add_state::<MovingWindowState>()
             .add_systems(OnEnter(ConstrainState::Constraining), spawn_ui)
             .add_systems(
-                FixedUpdate,
+                Update,
                 (
                     track_moving_window_state,
                     move_window.run_if(in_state(MovingWindowState::Moving)),
@@ -100,36 +102,33 @@ fn move_window(
         (&mut Style, &Transform, &Node),
         With<ConstraintUiWindow>,
     >,
-    mut mouse_position: EventReader<MouseMotion>,
     window_query: Query<&Window>,
+    cursor_delta: Res<CursorDelta>,
 ) {
     let mut bruh = window_constraint_ui_query.get_single_mut().unwrap();
-    let left = (*bruh.0)
-        .left
-        // Viewport shouldn't matter with percent, see source code for
-        // more
-        .resolve(100.0, Vec2::ZERO)
-        .unwrap();
-
-    let top = (*bruh.0)
-        .top
-        // Viewport shouldn't matter with percent, see source code for
-        // more
-        .resolve(100.0, Vec2::ZERO)
-        .unwrap();
 
     let window = window_query.get_single().unwrap();
-    for motion in mouse_position.read() {
-        println!("Motion delta: {:?}", motion.delta);
-        (*bruh.0).left = Val::Percent(
-            (left + 150.0 * motion.delta.x / window.width())
-                .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().x / window.width()),
-        );
-        (*bruh.0).top = Val::Percent(
-            (top + 150.0 * motion.delta.y / window.height())
-                .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().y / window.height()),
-        );
-    }
+    println!(
+        "Cursor delta: {:?}, Window Translation: {:?}, Cursor Pos: {:?}",
+        cursor_delta.current_delta_as_percentage(window.clone()),
+        bruh.1.translation.x - bruh.2.size().x / 2.0,
+        window.cursor_position().unwrap_or(Vec2::ZERO)
+    );
+
+    // FOR NEXT TIME:
+    // bruh.1.translation.x - bruh.2.size().x / 2.0 == window.cursor_position()
+    let left = cursor_delta
+        .previous_position_as_percentage(window.clone())
+        .x
+        .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().x / window.width());
+
+    let right = cursor_delta
+        .previous_position_as_percentage(window.clone())
+        .y
+        .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().y / window.height());
+
+    (*bruh.0).left = Val::Percent(left);
+    (*bruh.0).top = Val::Percent(right);
 }
 
 fn despawn_ui(

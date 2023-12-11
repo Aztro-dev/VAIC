@@ -23,6 +23,9 @@ use settings::SettingsPlugin;
 mod constraints;
 use constraints::ConstraintPlugin;
 
+mod cursor;
+use cursor::CursorPlugin;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
@@ -50,6 +53,7 @@ fn main() {
             ConstraintPlugin,
             DefaultRaycastingPlugin,
             FpsCounterPlugin,
+            CursorPlugin,
         ))
         .add_systems(Startup, setup)
         .add_systems(Update, toggle_grid_visibility)
