@@ -6,17 +6,22 @@ pub struct ConstraintUiPlugin;
 
 impl Plugin for ConstraintUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(ConstrainState::Constraining), spawn_ui)
+        app.add_state::<MovingWindowState>()
+            .add_systems(OnEnter(ConstrainState::Constraining), spawn_ui)
             .add_systems(
-                Update,
-                move_window.run_if(in_state(ConstrainState::Constraining)),
+                FixedUpdate,
+                (
+                    track_moving_window_state,
+                    move_window.run_if(in_state(MovingWindowState::Moving)),
+                )
+                    .run_if(in_state(ConstrainState::Constraining)),
             )
             .add_systems(OnExit(ConstrainState::Constraining), despawn_ui);
     }
 }
 
 #[derive(Component)]
-struct ConstraintUiComponent;
+struct ConstraintUiWindow;
 
 #[derive(Component)]
 struct ConstraintUiTitleBar;
@@ -43,7 +48,7 @@ fn spawn_ui(mut commands: Commands, mut materials: ResMut<Assets<RoundUiMaterial
                 }),
                 ..default()
             },
-            ConstraintUiComponent,
+            ConstraintUiWindow,
         ))
         .with_children(|parent| {
             parent
@@ -64,30 +69,72 @@ fn spawn_ui(mut commands: Commands, mut materials: ResMut<Assets<RoundUiMaterial
         });
 }
 
-fn move_window(
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
+enum MovingWindowState {
+    Moving,
+    #[default]
+    NotMoving,
+}
+
+fn track_moving_window_state(
+    curr_moving_window_state: Res<State<MovingWindowState>>,
+    mut next_curr_moving_window_state: ResMut<NextState<MovingWindowState>>,
     mouse_buttons: Res<Input<MouseButton>>,
     title_constraint_ui_query: Query<&RelativeCursorPosition, With<ConstraintUiTitleBar>>,
-    mut window_constraint_ui_query: Query<(&mut Style, &Transform), With<ConstraintUiComponent>>,
-    mut mouse_position: EventReader<MouseMotion>,
 ) {
-    if !mouse_buttons.pressed(MouseButton::Left) {
-        return;
+    if *curr_moving_window_state == MovingWindowState::NotMoving {
+        if title_constraint_ui_query.get_single().unwrap().mouse_over()
+            && mouse_buttons.just_pressed(MouseButton::Left)
+        {
+            next_curr_moving_window_state.set(MovingWindowState::Moving);
+        }
+    } else {
+        if !mouse_buttons.pressed(MouseButton::Left) {
+            next_curr_moving_window_state.set(MovingWindowState::NotMoving);
+        }
     }
+}
 
-    if !title_constraint_ui_query.get_single().unwrap().mouse_over() {
-        return;
-    }
-
+fn move_window(
+    mut window_constraint_ui_query: Query<
+        (&mut Style, &Transform, &Node),
+        With<ConstraintUiWindow>,
+    >,
+    mut mouse_position: EventReader<MouseMotion>,
+    window_query: Query<&Window>,
+) {
     let mut bruh = window_constraint_ui_query.get_single_mut().unwrap();
+    let left = (*bruh.0)
+        .left
+        // Viewport shouldn't matter with percent, see source code for
+        // more
+        .resolve(100.0, Vec2::ZERO)
+        .unwrap();
+
+    let top = (*bruh.0)
+        .top
+        // Viewport shouldn't matter with percent, see source code for
+        // more
+        .resolve(100.0, Vec2::ZERO)
+        .unwrap();
+
+    let window = window_query.get_single().unwrap();
     for motion in mouse_position.read() {
-        (*bruh.0).left = Val::Px(motion.delta.x);
-        (*bruh.0).top = Val::Px(motion.delta.y);
+        println!("Motion delta: {:?}", motion.delta);
+        (*bruh.0).left = Val::Percent(
+            (left + 150.0 * motion.delta.x / window.width())
+                .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().x / window.width()),
+        );
+        (*bruh.0).top = Val::Percent(
+            (top + 150.0 * motion.delta.y / window.height())
+                .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().y / window.height()),
+        );
     }
 }
 
 fn despawn_ui(
     mut commands: Commands,
-    constraint_ui_query: Query<Entity, With<ConstraintUiComponent>>,
+    constraint_ui_query: Query<Entity, With<ConstraintUiWindow>>,
 ) {
     commands
         .entity(constraint_ui_query.get_single().unwrap())
