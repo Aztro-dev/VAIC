@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy::window::{PresentMode, WindowTheme};
 use bevy_fps_counter::FpsCounterPlugin;
+use bevy_framepace::*;
 use bevy_infinite_grid::{
     InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
 };
@@ -54,8 +55,9 @@ fn main() {
             DefaultRaycastingPlugin,
             FpsCounterPlugin,
             CursorPlugin,
+            bevy_framepace::FramepacePlugin,
         ))
-        .add_systems(Startup, setup)
+        .add_systems(Startup, (setup, set_frame_cap))
         .add_systems(Update, toggle_grid_visibility)
         .run();
 }
@@ -113,4 +115,11 @@ fn toggle_grid_visibility(
             }
         }
     }
+}
+
+fn set_frame_cap(
+    mut settings: ResMut<bevy_framepace::FramepaceSettings>,
+    loaded_settings: Res<crate::settings::Settings>,
+) {
+    settings.limiter = Limiter::from_framerate(loaded_settings.fps_cap);
 }
