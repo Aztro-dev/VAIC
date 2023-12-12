@@ -48,6 +48,7 @@ fn spawn_ui(mut commands: Commands, mut materials: ResMut<Assets<RoundUiMaterial
                     size: Vec2::new(window_width, window_height),
                     ..default()
                 }),
+                z_index: ZIndex::Global(2),
                 ..default()
             },
             ConstraintUiWindow,
@@ -108,27 +109,17 @@ fn move_window(
     let mut bruh = window_constraint_ui_query.get_single_mut().unwrap();
 
     let window = window_query.get_single().unwrap();
-    println!(
-        "Cursor delta: {:?}, Window Translation: {:?}, Cursor Pos: {:?}",
-        cursor_delta.current_delta_as_percentage(window.clone()),
-        bruh.1.translation.x - bruh.2.size().x / 2.0,
-        window.cursor_position().unwrap_or(Vec2::ZERO)
+
+    (*bruh.0).left = Val::Percent(
+        (bruh.0.left.resolve(100.0, Vec2::ZERO).unwrap()
+            - cursor_delta.current_delta_as_percentage(window.clone()).x)
+            .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().x / window.width()),
     );
-
-    // FOR NEXT TIME:
-    // bruh.1.translation.x - bruh.2.size().x / 2.0 == window.cursor_position()
-    let left = cursor_delta
-        .previous_position_as_percentage(window.clone())
-        .x
-        .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().x / window.width());
-
-    let right = cursor_delta
-        .previous_position_as_percentage(window.clone())
-        .y
-        .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().y / window.height());
-
-    (*bruh.0).left = Val::Percent(left);
-    (*bruh.0).top = Val::Percent(right);
+    (*bruh.0).top = Val::Percent(
+        (bruh.0.top.resolve(100.0, Vec2::ZERO).unwrap()
+            - cursor_delta.current_delta_as_percentage(window.clone()).y)
+            .clamp(0.0, 100.0 - 100.0 * (*bruh.2).size().y / window.height()),
+    );
 }
 
 fn despawn_ui(

@@ -22,13 +22,6 @@ impl CursorDelta {
             100.0 * self.current_delta.y / window.height(),
         );
     }
-
-    pub fn previous_position_as_percentage(&self, window: Window) -> Vec2 {
-        return Vec2::new(
-            100.0 * self.previous_position.x / window.width(),
-            100.0 * self.previous_position.y / window.height(),
-        );
-    }
 }
 
 fn track_cursor(mut cursor: ResMut<CursorDelta>, window_query: Query<&Window>) {
