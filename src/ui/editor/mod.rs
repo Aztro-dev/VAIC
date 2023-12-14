@@ -1,3 +1,5 @@
+use crate::constraints::ConstrainState;
+
 use super::UIState;
 use bevy::prelude::*;
 
@@ -27,7 +29,10 @@ impl Plugin for EditorPlugin {
                     parts_list::update_parts_list,
                     parts_list::refresh_parts_list,
                 )
-                    .run_if(in_state(UIState::Editor)),
+                    .run_if(
+                        in_state(UIState::Editor)
+                            .and_then(in_state(ConstrainState::NotConstraining)),
+                    ),
             );
     }
 }
