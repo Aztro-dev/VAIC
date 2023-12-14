@@ -1,3 +1,4 @@
+use bevy::pbr::ClusterConfig;
 use bevy::prelude::*;
 use bevy_infinite_grid::GridShadowCamera;
 use bevy_transform_gizmo::GizmoPickSource;
@@ -34,6 +35,7 @@ fn spawn_camera(mut commands: Commands, settings: Res<Settings>) {
             Vec3::new(0.0, 0.0, 0.0),
             Vec3::Y,
         ),
+        ClusterConfig::Single,
     ));
 }
 

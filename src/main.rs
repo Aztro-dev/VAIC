@@ -1,4 +1,6 @@
+use bevy::core::TaskPoolThreadAssignmentPolicy;
 use bevy::prelude::*;
+use bevy::tasks::available_parallelism;
 use bevy::window::{PresentMode, WindowTheme};
 use bevy_fps_counter::FpsCounterPlugin;
 use bevy_framepace::*;
@@ -45,7 +47,20 @@ fn main() {
                     close_when_requested: true,
                     ..default()
                 })
-                .set(low_latency_window_plugin()),
+                .set(low_latency_window_plugin())
+                .set(TaskPoolPlugin {
+                    task_pool_options: TaskPoolOptions {
+                        compute: TaskPoolThreadAssignmentPolicy {
+                            // set the minimum # of compute threads
+                            // to the total number of available threads
+                            min_threads: available_parallelism(),
+                            max_threads: std::usize::MAX, // unlimited max threads
+                            percent: 1.0,                 // this value is irrelevant in this case
+                        },
+                        // keep the defaults for everything else
+                        ..default()
+                    },
+                }),
             PlacingPlugin,
             InfiniteGridPlugin,
             MovementPlugin,
