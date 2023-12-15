@@ -20,7 +20,6 @@ impl Plugin for PlacingPlugin {
             ))
             .add_systems(
                 Update,
-                // (snap_to_closest, spawn_event).run_if(not(in_state(ConstrainState::Constraining))),
                 spawn_event.run_if(not(in_state(ConstrainState::Constraining))),
             )
             .add_systems(
@@ -52,7 +51,7 @@ pub struct PlacedList(pub Vec<PlacedPart>);
 pub struct PlacingEvent(pub String, pub Handle<Scene>);
 
 #[derive(Component)]
-struct PartName(pub String);
+pub struct PartName(pub String);
 
 fn spawn_event(
     mut event_reader: EventReader<PlacingEvent>,
@@ -104,11 +103,13 @@ fn placing(
     mut recently_placed: ResMut<PlacedList>,
     mut event_writer: EventWriter<PlacingEvent>, // To spawn multiple parts
     model_handles: Res<ModelHandles>,
+    mut add_constraints_event: EventWriter<crate::constraints::AddConstraintsEvent>,
 ) {
     for (mut transform, name, entity) in placing_query.iter_mut() {
         if mouse.just_pressed(MouseButton::Left) {
             commands.entity(entity).remove::<CurrentlyPlacing>();
             commands.get_entity(entity).unwrap().insert(Part {});
+            add_constraints_event.send(crate::constraints::AddConstraintsEvent(entity));
             recently_placed.0.push(PlacedPart {
                 name: (*name).0.clone(),
                 entity,
@@ -210,26 +211,6 @@ fn undo_move(
         refresh_parts_list_writer.send(crate::ui::editor::parts_list::RefreshPartsList);
     }
 }
-
-// const SNAP_DIST: f32 = 0.1;
-// const SNAP_ROT: f32 = std::f32::consts::PI / 24.0;
-//
-// fn snap_to_closest(
-//     mut movable_query: Query<&mut Transform, With<bevy_transform_gizmo::GizmoTransformable>>,
-// ) {
-//     for mut transform in movable_query.iter_mut() {
-//         transform.translation.x = transform.translation.x - transform.translation.x % SNAP_DIST;
-//         transform.translation.y = transform.translation.y - transform.translation.y % SNAP_DIST;
-//         transform.translation.z = transform.translation.z - transform.translation.z % SNAP_DIST;
-//         let to_euler = transform.rotation.to_euler(EulerRot::XYZ);
-//         transform.rotation = Quat::from_euler(
-//             EulerRot::XYZ,
-//             to_euler.0 - to_euler.0 % SNAP_ROT,
-//             to_euler.1 - to_euler.1 % SNAP_ROT,
-//             to_euler.2 - to_euler.2 % SNAP_ROT,
-//         );
-//     }
-// }
 
 fn despawn_placing(
     mut commands: Commands,

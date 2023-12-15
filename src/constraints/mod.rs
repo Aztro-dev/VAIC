@@ -4,20 +4,33 @@ use bevy::prelude::*;
 mod ui;
 use ui::ConstraintUiPlugin;
 
+mod add_constraints;
+pub use add_constraints::AddConstraintsEvent;
+use add_constraints::*;
+
+mod handle_constraints;
+use handle_constraints::*;
+
 pub struct ConstraintPlugin;
 
 impl Plugin for ConstraintPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<ConstrainState>()
+            .add_event::<AddConstraintsEvent>()
+            .add_event::<ConstraintEvent>()
             .add_plugins(ConstraintUiPlugin)
             .add_systems(Update, check_for_c)
             .add_systems(
                 Update,
-                exit_constrain.run_if(in_state(ConstrainState::Constraining)),
+                (exit_constrain, handle_constraint_event, select_constraints)
+                    .run_if(in_state(ConstrainState::Constraining)),
             )
-            .add_systems(Startup, test_constraints)
             .add_systems(OnEnter(ConstrainState::Constraining), show_constraints)
-            .add_systems(OnExit(ConstrainState::Constraining), hide_constraints);
+            .add_systems(OnExit(ConstrainState::Constraining), hide_constraints)
+            .add_systems(
+                Update,
+                add_constraints_event.run_if(in_state(crate::placing::PlacingState::Placing)),
+            );
     }
 }
 
@@ -30,6 +43,11 @@ pub enum ConstrainState {
 
 #[derive(Component)]
 pub struct ConstrainComponent;
+
+#[derive(Default, Clone, Copy, Debug)]
+pub struct ConstraintData {
+    pub transform: Transform,
+}
 
 fn check_for_c(
     keyboard: Res<Input<KeyCode>>,
@@ -51,30 +69,6 @@ fn exit_constrain(
         placing_state.set(PlacingState::NotPlacing);
         constrain_state.set(ConstrainState::NotConstraining);
     }
-}
-
-fn test_constraints(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    commands.spawn((
-        PbrBundle {
-            visibility: Visibility::Hidden,
-            mesh: meshes.add(Mesh::from(shape::Cylinder {
-                radius: 0.10,
-                height: 0.05,
-                resolution: 64,
-                ..default()
-            })),
-            material: materials.add(StandardMaterial {
-                base_color: Color::RED,
-                ..default()
-            }),
-            ..default()
-        },
-        ConstrainComponent {},
-    ));
 }
 
 fn show_constraints(mut constraints_query: Query<&mut Visibility, With<ConstrainComponent>>) {

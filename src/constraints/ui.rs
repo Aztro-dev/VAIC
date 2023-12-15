@@ -1,14 +1,39 @@
 use crate::cursor::CursorDelta;
 
-use super::ConstrainState;
+use super::{ConstrainState, ConstraintData};
 use bevy::{prelude::*, ui::RelativeCursorPosition};
 use bevy_round_ui::prelude::*;
 
 pub struct ConstraintUiPlugin;
 
+#[derive(Resource, Debug, Default, Clone, Copy)]
+pub struct CurrentConstraintOperation {
+    pub constraints: [Option<ConstraintData>; 2],
+    pub parents: [Option<Entity>; 2],
+}
+
+impl Into<super::ConstraintEvent> for CurrentConstraintOperation {
+    fn into(self) -> super::ConstraintEvent {
+        let mut constraints: [ConstraintData; 2] =
+            [ConstraintData::default(), ConstraintData::default()];
+        for (index, constraint) in self.constraints.iter().enumerate() {
+            constraints[index] = constraint.unwrap();
+        }
+        let mut parents: [Entity; 2] = [Entity::PLACEHOLDER, Entity::PLACEHOLDER];
+        for (index, parent) in self.parents.iter().enumerate() {
+            parents[index] = parent.unwrap();
+        }
+        super::ConstraintEvent {
+            constraints,
+            parents,
+        }
+    }
+}
+
 impl Plugin for ConstraintUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<MovingWindowState>()
+            .init_resource::<CurrentConstraintOperation>()
             .add_systems(OnEnter(ConstrainState::Constraining), spawn_ui)
             .add_systems(
                 Update,
