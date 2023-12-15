@@ -19,10 +19,13 @@ pub fn handle_constraint_event(
         let displacement =
             event.constraints[0].transform.translation - event.constraints[1].transform.translation;
         (*transform).translation += displacement;
-        let rotation_diff =
-            event.constraints[0].transform.rotation - event.constraints[1].transform.rotation;
-        (*transform).rotation = (*transform).rotation - rotation_diff;
-        println!("{displacement}");
+        // let rotation_diff =
+        //     event.constraints[0].transform.rotation - event.constraints[1].transform.rotation;
+        (*transform).rotation *= event.constraints[1].transform.rotation.normalize();
+        println!(
+            "{displacement}, {:?}",
+            transform.rotation.to_euler(EulerRot::XYZ)
+        );
     }
 }
 
