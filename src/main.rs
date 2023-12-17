@@ -136,5 +136,10 @@ fn set_frame_cap(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
     loaded_settings: Res<crate::settings::Settings>,
 ) {
-    settings.limiter = Limiter::from_framerate(loaded_settings.fps_cap);
+    let limit = loaded_settings.fps_cap;
+    if limit == 0.0 {
+        settings.limiter = Limiter::Off;
+    } else {
+        settings.limiter = Limiter::from_framerate(loaded_settings.fps_cap);
+    }
 }
