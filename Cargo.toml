@@ -5,6 +5,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.release]
+opt-level = "z"  # Optimize for size.
+
 [dependencies]
 bevy = "0.12.0"
 bevy_infinite_grid = { git = "https://github.com/elodin-sys/bevy_infinite_grid.git", version = "0.9" } # Until updated to 0.12
