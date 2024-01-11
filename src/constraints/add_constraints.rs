@@ -82,7 +82,8 @@ fn get_constraint_data(name: String) -> Vec<ConstraintData> {
             },
         ],
         _ => {
-            panic!("{name}");
+            println!("{name} has no constraints!");
+            vec![]
         }
     };
 }
