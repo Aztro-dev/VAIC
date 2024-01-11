@@ -50,7 +50,7 @@ pub struct PlacedList(pub Vec<PlacedPart>);
 #[derive(Event)]
 pub struct PlacingEvent(pub String, pub Handle<Scene>);
 
-#[derive(Component)]
+#[derive(Component, Debug)]
 pub struct PartName(pub String);
 
 fn spawn_event(
