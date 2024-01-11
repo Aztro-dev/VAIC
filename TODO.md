@@ -14,4 +14,4 @@ Ctrl-Y (redo) functionality
 - Ctrl-Y to redo something that you undid
 
 Load to/from files (save functionality)
-- Should contain full (up to like 50 actions) object/action tracking, so you can ctrl-Z
+- Should contain full (up to like 50 actions) object/action tracking, so you can Ctrl-Z
