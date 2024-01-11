@@ -29,6 +29,9 @@ use constraints::ConstraintPlugin;
 mod cursor;
 use cursor::CursorPlugin;
 
+mod saving;
+use saving::SavingPlugin;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
@@ -67,6 +70,7 @@ fn main() {
             UIPlugin,
             SettingsPlugin,
             ConstraintPlugin,
+            SavingPlugin,
             DefaultRaycastingPlugin,
             FpsCounterPlugin,
             CursorPlugin,
