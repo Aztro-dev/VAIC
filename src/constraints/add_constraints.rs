@@ -81,6 +81,33 @@ fn get_constraint_data(name: String) -> Vec<ConstraintData> {
                 },
             },
         ],
+        "2x25 C-Channel" => vec![
+            ConstraintData {
+                transform: Transform::from_translation(Vec3::new(0.29, 0.035, 0.0)),
+                ..default()
+            },
+            ConstraintData {
+                transform: Transform::from_translation(Vec3::new(-0.29, 0.035, 0.0)),
+                ..default()
+            },
+            ConstraintData {
+                transform: Transform::from_translation(Vec3::new(0.0, 0.035, -0.29)),
+            },
+            ConstraintData {
+                transform: Transform {
+                    translation: Vec3::new(-0.55, 0.365, 0.0),
+                    rotation: Quat::from_rotation_z(PI / 2.0),
+                    ..default()
+                },
+            },
+            ConstraintData {
+                transform: Transform {
+                    translation: Vec3::new(0.55, 0.365, 0.0),
+                    rotation: Quat::from_rotation_z(PI / 2.0),
+                    ..default()
+                },
+            },
+        ],
         _ => {
             println!("{name} has no constraints!");
             vec![]
