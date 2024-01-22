@@ -51,16 +51,11 @@ pub fn time_since_last_save(
     if update_save_count_timer.timer.finished() {
         let time = most_recent_save.time_since_last_save();
 
-        if time.is_none() {
-            println!("Haven\'t saved yet");
-        } else {
+        if time.is_some() {
             if time.unwrap() >= 60 {
                 update_save_count_timer
                     .timer
                     .set_duration(std::time::Duration::from_secs(60));
-                println!("Last save: {:?} mins", time.unwrap() / 60);
-            } else {
-                println!("Last save: {:?} secs", time.unwrap());
             }
         }
     }

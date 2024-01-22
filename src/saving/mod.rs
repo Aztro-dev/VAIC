@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::ui;
 
-mod save_timer;
+pub mod save_timer;
 use save_timer::*;
 
 mod save;
