@@ -41,9 +41,9 @@ fn main() {
             DefaultPlugins
                 .set(WindowPlugin {
                     primary_window: Some(Window {
-                        title: "VAIC".into(),
+                        title: "VAIC".to_string(),
                         fit_canvas_to_parent: true,
-                        present_mode: PresentMode::AutoNoVsync,
+                        present_mode: PresentMode::AutoVsync,
                         window_theme: Some(WindowTheme::Dark),
                         ..default()
                     }),
@@ -76,7 +76,8 @@ fn main() {
             CursorPlugin,
             bevy_framepace::FramepacePlugin,
         ))
-        .add_systems(Startup, (setup, set_frame_cap))
+        .add_systems(Startup, setup)
+        .add_systems(Startup, set_frame_cap)
         .add_systems(Update, toggle_grid_visibility)
         .run();
 }
@@ -138,12 +139,12 @@ fn toggle_grid_visibility(
 
 fn set_frame_cap(
     mut settings: ResMut<bevy_framepace::FramepaceSettings>,
-    loaded_settings: Res<crate::settings::Settings>,
+    _loaded_settings: Res<crate::settings::Settings>,
 ) {
-    let limit = loaded_settings.fps_cap;
-    if limit == 0.0 {
-        settings.limiter = Limiter::Off;
-    } else {
-        settings.limiter = Limiter::from_framerate(loaded_settings.fps_cap);
-    }
+    // let limit = loaded_settings.fps_cap;
+    // if limit == 0.0 {
+    settings.limiter = Limiter::Off;
+    // } else {
+    //     settings.limiter = Limiter::from_framerate(loaded_settings.fps_cap);
+    // }
 }
