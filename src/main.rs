@@ -7,12 +7,14 @@ use bevy_framepace::*;
 use bevy_infinite_grid::{
     InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
 };
-use bevy_mod_picking::low_latency_window_plugin;
 use bevy_mod_raycast::prelude::*;
 
 mod placing;
 use placing::PlacingEvent;
 use placing::PlacingPlugin;
+
+mod move_objects;
+use move_objects::MoveObjectsPlugin;
 
 mod movement;
 use movement::MovementPlugin;
@@ -50,7 +52,6 @@ fn main() {
                     close_when_requested: true,
                     ..default()
                 })
-                .set(low_latency_window_plugin())
                 .set(TaskPoolPlugin {
                     task_pool_options: TaskPoolOptions {
                         compute: TaskPoolThreadAssignmentPolicy {
@@ -65,6 +66,7 @@ fn main() {
                     },
                 }),
             PlacingPlugin,
+            MoveObjectsPlugin,
             InfiniteGridPlugin,
             MovementPlugin,
             UIPlugin,
@@ -117,6 +119,7 @@ fn setup(
         },
         placing::Part {},
         RaycastMesh::<()>::default(), // Make this mesh ray cast-able;
+        InfiniteGrid,
     ));
 }
 

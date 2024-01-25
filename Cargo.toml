@@ -15,8 +15,9 @@ opt-level = "z"  # Optimize for size.
 bevy = "0.12.0"
 bevy_infinite_grid = { git = "https://github.com/elodin-sys/bevy_infinite_grid.git", version = "0.9" } # Until updated to 0.12
 smooth-bevy-cameras = { git = "https://github.com/Aztro-dev/smooth-bevy-cameras.git", branch = "bevy-0.12" }
-bevy_transform_gizmo = { git = "https://github.com/rszemplinski/bevy_transform_gizmo.git", branch = "main" } # Until updated to 0.12
-bevy_mod_picking = "0.17.0"
+egui-gizmo = { git = "https://github.com/urholaukkarinen/egui-gizmo.git", branch = "main"}
+# bevy_transform_gizmo = { git = "https://github.com/rszemplinski/bevy_transform_gizmo.git", branch = "main" } # Until updated to 0.12
+# bevy_mod_picking = "0.17.0"
 bevy_mod_raycast = "0.16.0"
 serde = "1.0.193"
 ron = "0.8.1"
@@ -24,3 +25,8 @@ bevy-fps-counter = "0.3.0"
 bevy_round_ui = "0.1.1"
 bevy_framepace = "0.14.1"
 chrono = "0.4.31"
+egui = "0.25.0"
+
+[dependencies.bevy_egui]
+git = "https://github.com/urholaukkarinen/bevy_egui.git"
+rev="bc3dd1559e24ca0178ed1d2dfef07cb784437505"

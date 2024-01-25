@@ -18,7 +18,12 @@ pub fn add_constraints_event(
 ) {
     for event in add_constraints_event_reader.read() {
         let entity = event.0;
-        let part_name: &PartName = part_query.component(entity);
+        let part_name: Option<&PartName> = part_query.get_component(entity).ok();
+        if part_name.is_none() {
+            continue;
+        }
+        let part_name = part_name.unwrap();
+
         let stripped_name = crate::ui::editor::reverse_model_name(part_name.0.clone());
         let constraints: Vec<ConstraintData> = get_constraint_data(stripped_name.clone());
 

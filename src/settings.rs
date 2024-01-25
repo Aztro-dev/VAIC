@@ -12,6 +12,7 @@ pub struct Settings {
     pub translate_sensitivity: Vec2,
     pub zoom_sensitivity: f32,
     pub fps_cap: f64,
+    pub precision_snap: bool,
 }
 
 impl Settings {
@@ -52,6 +53,7 @@ impl Default for Settings {
             translate_sensitivity: Vec2::splat(0.2),
             zoom_sensitivity: 1.0,
             fps_cap: 60.0,
+            precision_snap: false,
         }
     }
 }

@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_mod_picking::prelude::*;
 use bevy_mod_raycast::prelude::*;
 
 use crate::constraints::ConstrainState;
@@ -12,12 +11,6 @@ impl Plugin for PlacingPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<PlacingState>()
             .insert_resource(PlacedList(vec![]))
-            .add_plugins((
-                DefaultPickingPlugins
-                    .build()
-                    .disable::<DebugPickingPlugin>(),
-                bevy_transform_gizmo::TransformGizmoPlugin::default(),
-            ))
             .add_systems(
                 Update,
                 spawn_event.run_if(not(in_state(ConstrainState::Constraining))),
@@ -69,8 +62,7 @@ fn spawn_event(
                 transform: Transform::from_translation(new_position),
                 ..default()
             },
-            bevy_transform_gizmo::GizmoTransformable,
-            CurrentlyPlacing {},
+            CurrentlyPlacing,
             PartName(name.clone()),
         ));
         placing_state.set(PlacingState::Placing);
@@ -108,20 +100,21 @@ fn placing(
     for (mut transform, name, entity) in placing_query.iter_mut() {
         if mouse.just_pressed(MouseButton::Left) {
             commands.entity(entity).remove::<CurrentlyPlacing>();
-            commands.get_entity(entity).unwrap().insert(Part {});
+            commands.entity(entity).insert(Part);
             add_constraints_event.send(crate::constraints::AddConstraintsEvent(entity));
-            recently_placed.0.push(PlacedPart {
-                name: (*name).0.clone(),
-                entity,
-            });
+            let part_name = (*name).0.clone();
             event_writer.send(PlacingEvent(
-                recently_placed.0[recently_placed.0.len() - 1].name.clone(),
+                part_name.clone(),
                 crate::ui::editor::handle::get_model_handle(
-                    recently_placed.0[recently_placed.0.len() - 1].name.clone(),
+                    part_name.clone(),
                     (*model_handles).clone(),
                 )
                 .clone(),
             ));
+            recently_placed.0.push(PlacedPart {
+                name: part_name.clone(),
+                entity,
+            });
         }
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(
