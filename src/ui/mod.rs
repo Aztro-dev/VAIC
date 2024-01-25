@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_round_ui::prelude::*;
 
-use crate::{constraints::ConstrainState, placing::PlacingState};
+use crate::{constraints::ConstrainState, move_objects::MoveObjectsState, placing::PlacingState};
 
 mod pause;
 use pause::PausePlugin;
@@ -32,7 +32,8 @@ impl Plugin for UIPlugin {
                 Update,
                 handle_esc.run_if(
                     not(in_state(PlacingState::Placing))
-                        .and_then(not(in_state(ConstrainState::Constraining))),
+                        .and_then(not(in_state(ConstrainState::Constraining)))
+                        .and_then(not(in_state(MoveObjectsState::Moving))),
                 ),
             )
             .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin, RoundUiPlugin));

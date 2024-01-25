@@ -1,4 +1,7 @@
-use crate::{placing::Part, settings::Settings};
+use crate::{
+    placing::{CurrentlyPlacing, Part},
+    settings::Settings,
+};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_infinite_grid::InfiniteGrid;
@@ -12,13 +15,26 @@ use egui_gizmo::{
 
 pub struct MoveObjectsPlugin;
 
+#[derive(Default, States, Debug, Hash, Eq, Clone, Copy, PartialEq)]
+pub enum MoveObjectsState {
+    Moving,
+    #[default]
+    NotMoving,
+}
+
 impl Plugin for MoveObjectsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(EguiPlugin)
+            .add_state::<MoveObjectsState>()
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
-                (update, select_object).run_if(in_state(crate::ui::UIState::Editor)),
+                (
+                    update,
+                    select_object,
+                    unselect_object.run_if(in_state(MoveObjectsState::Moving)),
+                )
+                    .run_if(in_state(crate::ui::UIState::Editor)),
             );
     }
 }
@@ -33,7 +49,7 @@ struct GizmoOptions {
 
 fn setup(mut commands: Commands) {
     commands.insert_resource(GizmoOptions {
-        gizmo_mode: GizmoMode::Rotate,
+        gizmo_mode: GizmoMode::Translate,
         gizmo_orientation: GizmoOrientation::Global,
         last_result: None,
         custom_highlight_color: false,
@@ -42,6 +58,8 @@ fn setup(mut commands: Commands) {
             y_color: Color32::from_rgb(148, 255, 0),
             z_color: Color32::from_rgb(0, 148, 255),
             s_color: Color32::WHITE,
+            highlight_alpha: 2.0,
+            gizmo_size: 75.0,
             ..default()
         },
     });
@@ -102,7 +120,7 @@ fn update(
 
                 let model_matrix = target_q.single_mut().compute_matrix();
 
-                let gizmo = Gizmo::new("My gizmo")
+                let gizmo = Gizmo::new("Move Objects Gizmo")
                     .view_matrix(view_matrix.to_cols_array_2d().into())
                     .projection_matrix(projection_matrix.to_cols_array_2d().into())
                     .model_matrix(model_matrix.to_cols_array_2d().into())
@@ -133,10 +151,12 @@ fn show_gizmo_status(ui: &Ui, response: GizmoResult) {
     let text = match response.mode {
         GizmoMode::Rotate => format!("{:.1}°, {:.2} rad", length.to_degrees(), length),
 
-        GizmoMode::Translate | GizmoMode::Scale => format!(
+        GizmoMode::Translate => format!(
             "dX: {:.2}, dY: {:.2}, dZ: {:.2}",
             response.value[0], response.value[1], response.value[2]
         ),
+
+        GizmoMode::Scale => format!("Scale mode might not work as intended!"),
     };
 
     let rect = ui.clip_rect();
@@ -144,7 +164,10 @@ fn show_gizmo_status(ui: &Ui, response: GizmoResult) {
         pos2(rect.right() - 10.0, rect.bottom() - 10.0),
         Align2::RIGHT_BOTTOM,
         text,
-        FontId::default(),
+        FontId {
+            size: 12.0,
+            ..default()
+        },
         Color32::WHITE,
     );
 }
@@ -153,10 +176,11 @@ fn select_object(
     mut commands: Commands,
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
-    placed_query: Query<Entity, With<Part>>,
+    placed_query: Query<Entity, (With<Part>, Without<CurrentlyPlacing>)>,
     grid_query: Query<Entity, With<InfiniteGrid>>,
     mut target_query: Query<Entity, With<CurrentlyMoving>>,
     mouse_buttons: Res<Input<MouseButton>>,
+    mut moving_state: ResMut<NextState<MoveObjectsState>>,
 ) {
     if !mouse_buttons.just_pressed(MouseButton::Left) {
         return;
@@ -186,10 +210,28 @@ fn select_object(
     if intersection_array.is_empty() {
         return;
     }
+
     for entity in target_query.iter_mut() {
         commands.entity(entity).remove::<CurrentlyMoving>();
     }
 
     let entity = intersection_array[0].0;
+
     commands.entity(entity).insert(CurrentlyMoving);
+    moving_state.set(MoveObjectsState::Moving);
+}
+
+fn unselect_object(
+    mut commands: Commands,
+    mut target_query: Query<Entity, With<CurrentlyMoving>>,
+    mut moving_state: ResMut<NextState<MoveObjectsState>>,
+    keyboard: Res<Input<KeyCode>>,
+) {
+    if !keyboard.just_pressed(KeyCode::Escape) {
+        return;
+    }
+    moving_state.set(MoveObjectsState::NotMoving);
+    commands
+        .entity(target_query.get_single_mut().unwrap())
+        .remove::<CurrentlyMoving>();
 }
