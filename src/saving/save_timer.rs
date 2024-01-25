@@ -8,7 +8,7 @@ impl MostRecentSave {
         self.0 = time;
     }
 
-    pub fn time_since_last_save(&self) -> Option<u64> {
+    pub(crate) fn time_since_last_save(&self) -> Option<u64> {
         if self.0 == std::time::SystemTime::UNIX_EPOCH {
             return None;
         }
@@ -18,6 +18,26 @@ impl MostRecentSave {
                 .ok()?
                 .as_secs(),
         );
+    }
+}
+
+impl ToString for MostRecentSave {
+    fn to_string(&self) -> String {
+        let most_recent_save = self.time_since_last_save();
+        let mut most_recent_save_str = "Not saved yet!".to_string();
+        if most_recent_save.is_some() {
+            let most_recent_save = most_recent_save.unwrap();
+            if most_recent_save == 1 {
+                most_recent_save_str = "Saved 1 sec ago".to_string();
+            } else if most_recent_save < 60 {
+                most_recent_save_str = format!("Saved {} secs ago", most_recent_save);
+            } else if most_recent_save >= 60 && most_recent_save < 120 {
+                most_recent_save_str = "Saved 1 min ago".to_string();
+            } else {
+                most_recent_save_str = format!("Saved {} mins ago", most_recent_save / 60);
+            }
+        }
+        return most_recent_save_str;
     }
 }
 

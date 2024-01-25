@@ -19,7 +19,7 @@ pub fn spawn_top_bar(
                 style: Style {
                     width: Val::Percent(100.0),
                     height: Val::Percent(5.0),
-                    justify_content: JustifyContent::Start,
+                    justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
                     ..default()
                 },
@@ -30,31 +30,18 @@ pub fn spawn_top_bar(
             EditorTopBar,
         ))
         .with_children(|parent| {
-            let most_recent_save = last_save.time_since_last_save();
-            let mut most_recent_save_str = "Not saved yet!".to_string();
-            if most_recent_save.is_some() {
-                let most_recent_save = most_recent_save.unwrap();
-                if most_recent_save == 1 {
-                    most_recent_save_str = "Saved 1 sec ago".to_string();
-                } else if most_recent_save < 60 {
-                    most_recent_save_str = format!("Saved {} secs ago", most_recent_save);
-                } else if most_recent_save >= 60 && most_recent_save < 120 {
-                    most_recent_save_str = "Saved 1 min ago".to_string();
-                } else {
-                    most_recent_save_str = format!("Saved {} mins ago", most_recent_save / 60);
-                }
-            }
             parent.spawn((
                 TextBundle {
                     style: Style {
                         align_self: AlignSelf::Center,
+                        justify_self: JustifySelf::Center,
                         ..default()
                     },
                     text: Text::from_section(
-                        most_recent_save_str,
+                        last_save.to_string(),
                         TextStyle {
                             font: asset_server.load("FiraMonoNerdFontMono-Bold.otf"),
-                            font_size: 12.0,
+                            font_size: 16.0,
                             color: Color::WHITE,
                         },
                     ),
@@ -75,25 +62,11 @@ pub fn update_top_bar_timer(
         return;
     }
     for mut text in top_bar.iter_mut() {
-        let most_recent_save = last_save.time_since_last_save();
-        let mut most_recent_save_str = "Not saved yet!".to_string();
-        if most_recent_save.is_some() {
-            let most_recent_save = most_recent_save.unwrap();
-            if most_recent_save == 1 {
-                most_recent_save_str = "Saved 1 sec ago".to_string();
-            } else if most_recent_save < 60 {
-                most_recent_save_str = format!("Saved {} secs ago", most_recent_save);
-            } else if most_recent_save >= 60 && most_recent_save < 120 {
-                most_recent_save_str = "Saved 1 min ago".to_string();
-            } else {
-                most_recent_save_str = format!("Saved {} mins ago", most_recent_save / 60);
-            }
-        }
         *text = Text::from_section(
-            most_recent_save_str,
+            last_save.to_string(),
             TextStyle {
                 font: asset_server.load("FiraMonoNerdFontMono-Bold.otf"),
-                font_size: 12.0,
+                font_size: 16.0,
                 color: Color::WHITE,
             },
         );
