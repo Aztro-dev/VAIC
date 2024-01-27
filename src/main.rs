@@ -10,7 +10,6 @@ use bevy_infinite_grid::{
 use bevy_mod_raycast::prelude::*;
 
 mod placing;
-use placing::PlacingEvent;
 use placing::PlacingPlugin;
 
 mod move_objects;
@@ -38,7 +37,6 @@ fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
         .insert_resource(Msaa::Sample4)
-        .add_event::<PlacingEvent>()
         .add_plugins((
             DefaultPlugins
                 .set(WindowPlugin {

@@ -10,6 +10,7 @@ pub struct PlacingPlugin;
 impl Plugin for PlacingPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<PlacingState>()
+            .add_event::<PlacingEvent>()
             .insert_resource(PlacedList(vec![]))
             .add_systems(
                 Update,
