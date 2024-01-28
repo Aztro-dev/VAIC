@@ -1,5 +1,7 @@
+mod ui;
+
 use crate::{
-    placing::{CurrentlyPlacing, Part},
+    placing::{CurrentlyPlacing, Part, PlacingState},
     settings::Settings,
 };
 use bevy::prelude::*;
@@ -31,8 +33,9 @@ impl Plugin for MoveObjectsPlugin {
                 Update,
                 (
                     update,
-                    select_object,
-                    unselect_object.run_if(in_state(MoveObjectsState::Moving)),
+                    select_object.run_if(not(in_state(PlacingState::Placing))),
+                    (unselect_object, ui::change_gizmo_mode)
+                        .run_if(in_state(MoveObjectsState::Moving)),
                 )
                     .run_if(in_state(crate::ui::UIState::Editor)),
             );
