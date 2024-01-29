@@ -1,5 +1,7 @@
 mod ui;
 
+use core::f32::consts::PI;
+
 use crate::{
     placing::{CurrentlyPlacing, Part, PlacingState},
     settings::Settings,
@@ -8,12 +10,9 @@ use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_infinite_grid::InfiniteGrid;
 use bevy_mod_raycast::prelude::*;
-use egui::{pos2, Align2, Color32, FontId, LayerId, Ui};
+use egui::{Color32, LayerId};
 
-use egui_gizmo::{
-    Gizmo, GizmoMode, GizmoOrientation, GizmoResult, GizmoVisuals, DEFAULT_SNAP_ANGLE,
-    DEFAULT_SNAP_DISTANCE,
-};
+use egui_gizmo::{Gizmo, GizmoMode, GizmoOrientation, GizmoResult, GizmoVisuals};
 
 pub struct MoveObjectsPlugin;
 
@@ -46,6 +45,8 @@ struct GizmoOptions {
     gizmo_mode: GizmoMode,
     gizmo_orientation: GizmoOrientation,
     precision_snap: bool,
+    snap_angle: f32,
+    snap_distance: f32,
     last_result: Option<GizmoResult>,
     custom_highlight_color: bool,
     visuals: GizmoVisuals,
@@ -56,6 +57,8 @@ fn setup(mut commands: Commands, settings: Res<Settings>) {
         gizmo_mode: GizmoMode::Translate,
         gizmo_orientation: GizmoOrientation::Global,
         precision_snap: settings.precision_snap,
+        snap_angle: PI / 12.0, // 15 degrees
+        snap_distance: 0.20,
         last_result: None,
         custom_highlight_color: false,
         visuals: GizmoVisuals {
@@ -78,6 +81,7 @@ fn update(
     camera_q: Query<(&Camera, &Transform), Without<CurrentlyMoving>>,
     mut target_q: Query<&mut Transform, With<CurrentlyMoving>>,
     mut gizmo_options: ResMut<GizmoOptions>,
+    window: Query<&Window>,
 ) {
     let (projection_matrix, view_matrix) = {
         let (camera, transform) = camera_q.single();
@@ -98,19 +102,17 @@ fn update(
                 let precise_snap = gizmo_options.precision_snap;
 
                 // Snap angle to use for rotation when snapping is enabled.
-                // Smaller snap angle is used when shift key is pressed.
                 let snap_angle = if precise_snap {
-                    DEFAULT_SNAP_ANGLE / 2.0
+                    gizmo_options.snap_angle
                 } else {
-                    DEFAULT_SNAP_ANGLE
+                    1.0
                 };
 
                 // Snap distance to use for translation when snapping is enabled.
-                // Smaller snap distance is used when shift key is pressed.
                 let snap_distance = if precise_snap {
-                    DEFAULT_SNAP_DISTANCE / 2.0
+                    gizmo_options.snap_distance
                 } else {
-                    DEFAULT_SNAP_DISTANCE
+                    0.1
                 };
 
                 let visuals = GizmoVisuals {
@@ -144,36 +146,17 @@ fn update(
                     target_transform.rotation = gizmo_response.rotation.into();
                     target_transform.scale = gizmo_response.scale.into();
 
-                    show_gizmo_status(ui, gizmo_response);
+                    let window = window.get_single().unwrap();
+
+                    let window_size = Vec2::new(
+                        window.resolution.physical_width() as f32,
+                        window.resolution.physical_height() as f32,
+                    );
+
+                    ui::show_gizmo_status(ui, gizmo_response, window_size);
                 }
             });
         });
-}
-fn show_gizmo_status(ui: &Ui, response: GizmoResult) {
-    let length = Vec3::from(response.value).length();
-
-    let text = match response.mode {
-        GizmoMode::Rotate => format!("{:.1}°, {:.2} rad", length.to_degrees(), length),
-
-        GizmoMode::Translate => format!(
-            "dX: {:.2}, dY: {:.2}, dZ: {:.2}",
-            response.value[0], response.value[1], response.value[2]
-        ),
-
-        GizmoMode::Scale => format!("Scale mode might not work as intended!"),
-    };
-
-    let rect = ui.clip_rect();
-    ui.painter().text(
-        pos2(rect.right() - 10.0, rect.bottom() - 10.0),
-        Align2::RIGHT_BOTTOM,
-        text,
-        FontId {
-            size: 12.0,
-            ..default()
-        },
-        Color32::WHITE,
-    );
 }
 
 fn select_object(
