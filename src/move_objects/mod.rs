@@ -45,15 +45,17 @@ impl Plugin for MoveObjectsPlugin {
 struct GizmoOptions {
     gizmo_mode: GizmoMode,
     gizmo_orientation: GizmoOrientation,
+    precision_snap: bool,
     last_result: Option<GizmoResult>,
     custom_highlight_color: bool,
     visuals: GizmoVisuals,
 }
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, settings: Res<Settings>) {
     commands.insert_resource(GizmoOptions {
         gizmo_mode: GizmoMode::Translate,
         gizmo_orientation: GizmoOrientation::Global,
+        precision_snap: settings.precision_snap,
         last_result: None,
         custom_highlight_color: false,
         visuals: GizmoVisuals {
@@ -76,7 +78,6 @@ fn update(
     camera_q: Query<(&Camera, &Transform), Without<CurrentlyMoving>>,
     mut target_q: Query<&mut Transform, With<CurrentlyMoving>>,
     mut gizmo_options: ResMut<GizmoOptions>,
-    settings: Res<Settings>,
 ) {
     let (projection_matrix, view_matrix) = {
         let (camera, transform) = camera_q.single();
@@ -94,7 +95,7 @@ fn update(
         .fixed_pos((0.0, 0.0))
         .show(contexts.ctx_mut(), |ui| {
             ui.with_layer_id(LayerId::background(), |ui| {
-                let precise_snap = settings.precision_snap;
+                let precise_snap = gizmo_options.precision_snap;
 
                 // Snap angle to use for rotation when snapping is enabled.
                 // Smaller snap angle is used when shift key is pressed.
