@@ -1,9 +1,11 @@
 use crate::constraints::ConstrainState;
 
+use bevy_asset_loader::prelude::*;
+
 use self::top_bar::update_top_bar_timer;
 
 use super::UIState;
-use bevy::prelude::*;
+use bevy::{gltf::Gltf, prelude::*};
 
 mod part_selector;
 pub use part_selector::reverse_model_name;
@@ -19,10 +21,29 @@ pub mod handle;
 
 pub struct EditorPlugin;
 
+#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+enum LoadingStates {
+    #[default]
+    AssetLoading,
+    Next,
+}
+
+#[derive(AssetCollection, Resource)]
+pub(crate) struct Models {
+    #[asset(path = "models", collection(typed))]
+    folder: Vec<Handle<Gltf>>,
+}
+
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<parts_list::RefreshPartsList>()
-            .add_systems(Startup, handle::load_models_early)
+            .add_state::<LoadingStates>()
+            .add_loading_state(
+                LoadingState::new(LoadingStates::AssetLoading)
+                    .continue_to_state(LoadingStates::Next)
+                    .load_collection::<Models>(),
+            )
+            .add_systems(OnEnter(LoadingStates::Next), handle::load_models_early)
             .add_systems(
                 OnEnter(UIState::Editor),
                 (spawn_part_selector, spawn_parts_list, spawn_top_bar),

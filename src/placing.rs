@@ -55,11 +55,10 @@ fn spawn_event(
     for event in event_reader.read() {
         let new_position = Vec3::new(0.0, -10000.0, 0.0); // Out of the camera's view lmfao
         let name = &event.0;
-        let handle = event.1.clone();
 
         commands.spawn((
             SceneBundle {
-                scene: handle,
+                scene: event.1.clone(),
                 transform: Transform::from_translation(new_position),
                 ..default()
             },
