@@ -50,7 +50,7 @@ pub fn show_gizmo_status(ui: &Ui, response: GizmoResult, window_size: Vec2) {
         Align2::RIGHT_BOTTOM,
         text,
         FontId {
-            size: window_size.length() / 50.0,
+            size: window_size.y / 50.0,
             ..default()
         },
         Color32::WHITE,
