@@ -26,6 +26,7 @@ bevy_round_ui = "0.1.1"
 bevy_framepace = "0.14.1"
 chrono = "0.4.31"
 egui = "0.25.0"
+bevy_asset_loader = "0.19.1"
 
 [dependencies.bevy_egui]
 git = "https://github.com/urholaukkarinen/bevy_egui.git"

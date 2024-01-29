@@ -50,9 +50,7 @@ pub fn add_constraints_event(
             entity_list.push(id);
         }
         let entity_list_slice: &[Entity] = &entity_list;
-        commands
-            .entity(entity)
-            .insert_children(0, entity_list_slice);
+        commands.entity(entity).push_children(entity_list_slice);
     }
 }
 

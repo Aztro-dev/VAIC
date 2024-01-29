@@ -3,6 +3,7 @@ mod ui;
 use core::f32::consts::PI;
 
 use crate::{
+    constraints::ConstrainState,
     placing::{CurrentlyPlacing, Part, PlacingState},
     settings::Settings,
 };
@@ -81,8 +82,12 @@ fn update(
     camera_q: Query<(&Camera, &Transform), Without<CurrentlyMoving>>,
     mut target_q: Query<&mut Transform, With<CurrentlyMoving>>,
     mut gizmo_options: ResMut<GizmoOptions>,
+    constrain_state: Res<State<ConstrainState>>,
     window: Query<&Window>,
 ) {
+    if *constrain_state == ConstrainState::Constraining {
+        return;
+    }
     let (projection_matrix, view_matrix) = {
         let (camera, transform) = camera_q.single();
         (
@@ -168,12 +173,17 @@ fn select_object(
     mut target_query: Query<Entity, With<CurrentlyMoving>>,
     mouse_buttons: Res<Input<MouseButton>>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
+    constrain_state: Res<State<ConstrainState>>,
 ) {
     if !mouse_buttons.just_pressed(MouseButton::Left) {
         return;
     }
 
     if placed_query.is_empty() {
+        return;
+    }
+
+    if *constrain_state == ConstrainState::Constraining {
         return;
     }
 
