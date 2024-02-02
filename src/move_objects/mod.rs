@@ -228,7 +228,7 @@ fn unselect_object(
         return;
     }
     moving_state.set(MoveObjectsState::NotMoving);
-    commands
-        .entity(target_query.get_single_mut().unwrap())
-        .remove::<CurrentlyMoving>();
+    if let Some(entity) = target_query.get_single_mut().ok() {
+        commands.entity(entity).remove::<CurrentlyMoving>();
+    }
 }

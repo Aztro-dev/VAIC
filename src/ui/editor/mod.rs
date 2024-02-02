@@ -29,9 +29,9 @@ enum LoadingStates {
 }
 
 #[derive(AssetCollection, Resource)]
-pub(crate) struct Models {
+pub struct Models {
     #[asset(path = "models", collection(typed))]
-    folder: Vec<Handle<Gltf>>,
+    pub folder: Vec<Handle<Gltf>>,
 }
 
 impl Plugin for EditorPlugin {
