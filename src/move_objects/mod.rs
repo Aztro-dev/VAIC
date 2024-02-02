@@ -147,9 +147,19 @@ fn update(
                 if let Some(gizmo_response) = gizmo_options.last_result {
                     let mut target_transform = target_q.single_mut();
 
-                    target_transform.translation = gizmo_response.translation.into();
-                    target_transform.rotation = gizmo_response.rotation.into();
-                    target_transform.scale = gizmo_response.scale.into();
+                    // We have to do some manual translation because of a new update in the
+                    // egui-gizmo dependency.
+                    target_transform.translation = Vec3::new(
+                        gizmo_response.translation.x,
+                        gizmo_response.translation.y,
+                        gizmo_response.translation.z,
+                    );
+                    target_transform.rotation = Quat::from_array(*gizmo_response.rotation.as_ref());
+                    target_transform.scale = Vec3::new(
+                        gizmo_response.scale.x,
+                        gizmo_response.scale.y,
+                        gizmo_response.scale.z,
+                    );
 
                     let window = window.get_single().unwrap();
 

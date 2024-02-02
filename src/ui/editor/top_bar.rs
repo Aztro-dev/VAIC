@@ -23,7 +23,7 @@ pub fn spawn_top_bar(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("444444").unwrap()),
+                background_color: BackgroundColor(Color::hex("44444400").unwrap()),
                 ..default()
             },
             EditorUIComponent,

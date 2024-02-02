@@ -28,7 +28,12 @@ pub fn change_gizmo_mode(
 }
 
 pub fn show_gizmo_status(ui: &Ui, response: GizmoResult, window_size: Vec2) {
-    let length = Vec3::from(response.value).length();
+    let value = response.value;
+    if value.is_none() {
+        return;
+    }
+    let value = value.unwrap();
+    let length = Vec3::from(value).length();
 
     let degrees = length.to_degrees();
 
@@ -37,7 +42,7 @@ pub fn show_gizmo_status(ui: &Ui, response: GizmoResult, window_size: Vec2) {
 
         GizmoMode::Translate => format!(
             "dX: {:.2}, dY: {:.2}, dZ: {:.2}",
-            response.value[0], response.value[1], response.value[2]
+            value[0], value[1], value[2]
         ),
 
         GizmoMode::Scale => format!("Scale mode might not work as intended!"),
