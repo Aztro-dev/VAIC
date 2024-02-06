@@ -29,6 +29,10 @@ pub fn change_gizmo_mode(
 
 pub fn show_gizmo_status(ui: &Ui, response: GizmoResult, window_size: Vec2) {
     let value = response.value;
+    if value.is_none() {
+        return;
+    }
+    let value = value.unwrap();
 
     let length = Vec3::from(value).length();
 
