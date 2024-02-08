@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_mod_raycast::prelude::*;
 
-use crate::constraints::ConstrainState;
+use crate::constraints::{ConstrainState, ConstraintData, ConstraintEvent};
 
 use crate::ui::editor::handle::ModelHandles;
 
@@ -11,7 +11,7 @@ impl Plugin for PlacingPlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<PlacingState>()
             .add_event::<PlacingEvent>()
-            .insert_resource(PlacedList(vec![]))
+            .insert_resource(ActionList(vec![]))
             .add_systems(
                 Update,
                 spawn_event.run_if(not(in_state(ConstrainState::Constraining))),
@@ -37,8 +37,75 @@ pub struct PlacedPart {
     pub entity: Entity,
 }
 
+#[derive(Debug, Clone)]
+pub enum Action {
+    Placed(String, Entity),
+    Constrained(ConstraintEvent),
+    Deleted(String, Transform),
+    PlaceHolder,
+}
+
+impl Action {
+    pub fn is_placed(&self) -> bool {
+        match self {
+            Self::Placed(_, _) => true,
+            _ => false,
+        }
+    }
+    pub fn is_constrained(&self) -> bool {
+        match self {
+            Self::Constrained(_) => true,
+            _ => false,
+        }
+    }
+    pub fn is_deleted(&self) -> bool {
+        match self {
+            Self::Deleted(_, _) => true,
+            _ => false,
+        }
+    }
+    pub fn is_placeholder(&self) -> bool {
+        match self {
+            Self::PlaceHolder => true,
+            _ => false,
+        }
+    }
+}
+
+impl From<PlacedPart> for Action {
+    fn from(value: PlacedPart) -> Self {
+        Action::Placed(value.name, value.entity)
+    }
+}
+
+impl Into<PlacedPart> for Action {
+    fn into(self) -> PlacedPart {
+        match self {
+            Action::Placed(name, entity) => PlacedPart {
+                name: name.clone(),
+                entity,
+            },
+            _ => panic!(),
+        }
+    }
+}
+
+impl From<ConstraintEvent> for Action {
+    fn from(value: ConstraintEvent) -> Self {
+        Action::Constrained(value)
+    }
+}
+
+impl Into<ConstraintEvent> for Action {
+    fn into(self) -> ConstraintEvent {
+        match self {
+            Action::Constrained(constraint_data) => constraint_data,
+            _ => panic!(),
+        }
+    }
+}
 #[derive(Resource)]
-pub struct PlacedList(pub Vec<PlacedPart>);
+pub struct ActionList(pub Vec<Action>);
 
 /// Takes in path to model
 #[derive(Event)]
@@ -93,7 +160,7 @@ fn placing(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     mouse: Res<Input<MouseButton>>,
-    mut recently_placed: ResMut<PlacedList>,
+    mut action_list: ResMut<ActionList>,
     mut event_writer: EventWriter<PlacingEvent>, // To spawn multiple parts
     model_handles: Res<ModelHandles>,
     mut add_constraints_event: EventWriter<crate::constraints::AddConstraintsEvent>,
@@ -112,10 +179,13 @@ fn placing(
                 )
                 .clone(),
             ));
-            recently_placed.0.push(PlacedPart {
-                name: part_name.clone(),
-                entity,
-            });
+            action_list.0.push(
+                PlacedPart {
+                    name: part_name.clone(),
+                    entity,
+                }
+                .into(),
+            );
         }
         if let Some(cursor_ray) = **cursor_ray {
             let intersection_array = &raycast.cast_ray(
@@ -147,16 +217,13 @@ fn placing(
 fn stop_placing_mode(
     keyboard: Res<Input<KeyCode>>,
     mut placing_state: ResMut<NextState<PlacingState>>,
-    mut recently_placed: ResMut<PlacedList>,
+    mut action_list: ResMut<ActionList>,
     mut commands: Commands,
     mut placing_query: Query<Entity, With<CurrentlyPlacing>>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         placing_state.set(PlacingState::NotPlacing);
-        recently_placed.0.push(PlacedPart {
-            name: String::from(""),
-            entity: Entity::PLACEHOLDER,
-        });
+        action_list.0.push(Action::PlaceHolder);
         for part in placing_query.iter_mut() {
             commands.entity(part).despawn_recursive();
         }
@@ -165,42 +232,56 @@ fn stop_placing_mode(
 
 fn undo_move(
     mut commands: Commands,
-    mut placed_list: ResMut<PlacedList>,
+    mut action_list: ResMut<ActionList>,
+    mut transform_query: Query<&mut Transform, With<crate::placing::Part>>,
     keyboard: Res<Input<KeyCode>>,
     mut refresh_parts_list_writer: EventWriter<crate::ui::editor::parts_list::RefreshPartsList>,
 ) {
     if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
-        if placed_list.0.is_empty() {
+        if action_list.0.is_empty() {
             return;
         }
-        let mut last_move = &placed_list.0[placed_list.0.len() - 1];
-        let mut last_move_index = placed_list.0.len();
-        for (index, curr_move) in placed_list.0.iter().enumerate().rev() {
-            if !curr_move.name.is_empty() {
-                last_move = curr_move;
-                last_move_index = index;
+        let mut last_action = &action_list.0[action_list.0.len() - 1];
+        let mut last_action_index = action_list.0.len();
+        for (index, curr_action) in action_list.0.iter().enumerate().rev() {
+            if !curr_action.is_placeholder() {
+                last_action = curr_action;
+                last_action_index = index;
                 break;
             }
         }
-        if last_move_index >= placed_list.0.len() {
+        if last_action_index >= action_list.0.len() {
             return;
         }
-        commands.entity((*last_move).entity).despawn_recursive();
-        placed_list.0.remove(last_move_index);
+        match *last_action {
+            Action::Placed(_, entity) => {
+                commands.entity(entity).despawn_recursive();
+            }
+            Action::Constrained(constraint_event) => {
+                let previous_transform = constraint_event.constraints[1];
+                let mut transform = transform_query
+                    .get_mut(constraint_event.parents[1])
+                    .unwrap();
+                *transform = previous_transform.transform;
+            }
+            _ => {
+                println!("Not handled {:?} yet!", last_action);
+                return;
+            }
+        }
+
+        action_list.0.remove(last_action_index);
 
         let mut index_list = vec![];
-        for (index, curr_move) in placed_list.0.iter().enumerate().rev() {
-            if curr_move.name.is_empty() && curr_move.entity == Entity::PLACEHOLDER {
+        for (index, curr_action) in action_list.0.iter().enumerate().rev() {
+            if curr_action.is_placeholder() {
                 index_list.push(index);
             }
         }
         for index in index_list.iter() {
-            placed_list.0.remove(*index);
+            action_list.0.remove(*index);
         }
-        placed_list.0.push(PlacedPart {
-            name: String::from(""),
-            entity: Entity::PLACEHOLDER,
-        });
+        action_list.0.push(Action::PlaceHolder);
 
         refresh_parts_list_writer.send(crate::ui::editor::parts_list::RefreshPartsList);
     }

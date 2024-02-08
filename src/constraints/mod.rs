@@ -9,6 +9,7 @@ pub use add_constraints::AddConstraintsEvent;
 use add_constraints::*;
 
 mod handle_constraints;
+pub use handle_constraints::ConstraintEvent;
 use handle_constraints::*;
 
 pub struct ConstraintPlugin;

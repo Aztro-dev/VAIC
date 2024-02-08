@@ -1,4 +1,4 @@
-use crate::ui::editor::EditorUIComponent;
+use crate::{placing::PlacedPart, ui::editor::EditorUIComponent};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -7,7 +7,7 @@ pub struct PartsList;
 pub fn spawn_parts_list(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    placed_already: Res<crate::placing::PlacedList>,
+    placed_already: Res<crate::placing::ActionList>,
 ) {
     commands
         .spawn((
@@ -63,11 +63,11 @@ pub fn spawn_parts_list(
             // End Parts header
             // Show already placed parts
             for part in placed_already.0.iter() {
-                if part.name.is_empty() {
+                if part.is_placeholder() {
                     continue;
                 }
-                if part.entity == Entity::PLACEHOLDER {
-                    continue;
+                if !part.is_placed() {
+                    return;
                 }
                 parent
                     .spawn(NodeBundle {
@@ -85,6 +85,7 @@ pub fn spawn_parts_list(
                         ..default()
                     })
                     .with_children(|parent| {
+                        let part: PlacedPart = part.clone().into();
                         parent.spawn((
                             TextBundle {
                                 text: Text::from_section(
@@ -109,7 +110,7 @@ pub fn spawn_parts_list(
 pub fn update_parts_list(
     mut commands: Commands,
     mut parts_list_query: Query<Entity, With<PartsList>>,
-    recently_placed: Res<crate::placing::PlacedList>,
+    recently_placed: Res<crate::placing::ActionList>,
     asset_server: Res<AssetServer>,
 ) {
     if !recently_placed.is_changed() {
@@ -118,10 +119,7 @@ pub fn update_parts_list(
     if recently_placed.0.is_empty() {
         return;
     }
-    if recently_placed.0[recently_placed.0.len() - 1]
-        .name
-        .is_empty()
-    {
+    if !recently_placed.0[recently_placed.0.len() - 1].is_placed() {
         return;
     }
     let parts_list = parts_list_query.get_single_mut().unwrap();
@@ -140,9 +138,12 @@ pub fn update_parts_list(
         ..default()
     };
 
-    let recently_placed_stripped = crate::ui::editor::part_selector::reverse_model_name(
-        recently_placed.0[recently_placed.0.len() - 1].name.clone(),
-    );
+    let part: PlacedPart = recently_placed.0[recently_placed.0.len() - 1]
+        .clone()
+        .into();
+
+    let recently_placed_stripped =
+        crate::ui::editor::part_selector::reverse_model_name(part.name.clone());
     let new_part_text = (
         TextBundle {
             text: Text::from_section(
@@ -174,7 +175,7 @@ pub struct RefreshPartsList;
 pub fn refresh_parts_list(
     mut commands: Commands,
     mut parts_list_query: Query<Entity, With<PartsList>>,
-    recently_placed: Res<crate::placing::PlacedList>,
+    recently_placed: Res<crate::placing::ActionList>,
     asset_server: Res<AssetServer>,
     mut refresh_parts_list_reader: EventReader<RefreshPartsList>,
 ) {
@@ -213,8 +214,8 @@ pub fn refresh_parts_list(
             .id();
 
         commands.entity(parts_list).add_child(header);
-        for placed in recently_placed.0.iter() {
-            if placed.name.is_empty() || placed.entity == Entity::PLACEHOLDER {
+        for action in recently_placed.0.iter() {
+            if !action.is_placed() {
                 continue;
             }
             let new_part = NodeBundle {
@@ -230,6 +231,8 @@ pub fn refresh_parts_list(
                 border_color: BorderColor(Color::hex("555555").unwrap()),
                 ..default()
             };
+
+            let placed: PlacedPart = action.clone().into();
 
             let recently_placed_stripped =
                 crate::ui::editor::part_selector::reverse_model_name(placed.name.clone());

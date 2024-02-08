@@ -1,9 +1,11 @@
 use bevy::prelude::*;
 use bevy_mod_raycast::prelude::*;
 
+use crate::placing::ActionList;
+
 use super::{ui::CurrentConstraintOperation, ConstrainComponent, ConstraintData};
 
-#[derive(Event, Debug)]
+#[derive(Event, Debug, Clone, Copy)]
 pub struct ConstraintEvent {
     pub constraints: [ConstraintData; 2],
     /// The Entity at position one (index 0) is the entity that will move
@@ -13,6 +15,7 @@ pub struct ConstraintEvent {
 pub fn handle_constraint_event(
     mut events: EventReader<ConstraintEvent>,
     mut transform_query: Query<&mut Transform, With<crate::placing::Part>>,
+    mut action_list: ResMut<ActionList>,
 ) {
     for event in events.read() {
         let mut transform = transform_query.get_mut(event.parents[0]).unwrap();
@@ -22,6 +25,7 @@ pub fn handle_constraint_event(
         // let rotation_diff =
         //     event.constraints[0].transform.rotation - event.constraints[1].transform.rotation;
         (*transform).rotation *= event.constraints[1].transform.rotation.normalize();
+        action_list.0.push(event.clone().into());
         println!(
             "{displacement}, {:?}",
             transform.rotation.to_euler(EulerRot::XYZ)
@@ -38,6 +42,7 @@ pub fn select_constraints(
     mut materials: ResMut<Assets<StandardMaterial>>,
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
+
     mouse: Res<Input<MouseButton>>,
 ) {
     if let Some(cursor_ray) = **cursor_ray {
