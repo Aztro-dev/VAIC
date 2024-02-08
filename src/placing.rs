@@ -23,11 +23,7 @@ impl Plugin for PlacingPlugin {
                         .and_then(not(in_state(ConstrainState::Constraining))),
                 ),
             )
-            .add_systems(OnExit(PlacingState::Placing), despawn_placing)
-            .add_systems(
-                Update,
-                undo_move.run_if(in_state(crate::ui::UIState::Editor)),
-            );
+            .add_systems(OnExit(PlacingState::Placing), despawn_placing);
     }
 }
 
@@ -157,63 +153,6 @@ fn stop_placing_mode(
         for part in placing_query.iter_mut() {
             commands.entity(part).despawn_recursive();
         }
-    }
-}
-
-fn undo_move(
-    mut commands: Commands,
-    mut action_list: ResMut<ActionList>,
-    mut transform_query: Query<&mut Transform, With<crate::placing::Part>>,
-    keyboard: Res<Input<KeyCode>>,
-    mut refresh_parts_list_writer: EventWriter<crate::ui::editor::parts_list::RefreshPartsList>,
-) {
-    if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
-        if action_list.0.is_empty() {
-            return;
-        }
-        let mut last_action = &action_list.0[action_list.0.len() - 1];
-        let mut last_action_index = action_list.0.len();
-        for (index, curr_action) in action_list.0.iter().enumerate().rev() {
-            if !curr_action.is_placeholder() {
-                last_action = curr_action;
-                last_action_index = index;
-                break;
-            }
-        }
-        if last_action_index >= action_list.0.len() {
-            return;
-        }
-        match *last_action {
-            Action::Placed(_, entity) => {
-                commands.entity(entity).despawn_recursive();
-            }
-            Action::Constrained(constraint_event) => {
-                let previous_transform = constraint_event.constraints[1];
-                let mut transform = transform_query
-                    .get_mut(constraint_event.parents[1])
-                    .unwrap();
-                *transform = previous_transform.transform;
-            }
-            _ => {
-                println!("Not handled {:?} yet!", last_action);
-                return;
-            }
-        }
-
-        action_list.0.remove(last_action_index);
-
-        let mut index_list = vec![];
-        for (index, curr_action) in action_list.0.iter().enumerate().rev() {
-            if curr_action.is_placeholder() {
-                index_list.push(index);
-            }
-        }
-        for index in index_list.iter() {
-            action_list.0.remove(*index);
-        }
-        action_list.0.push(Action::PlaceHolder);
-
-        refresh_parts_list_writer.send(crate::ui::editor::parts_list::RefreshPartsList);
     }
 }
 

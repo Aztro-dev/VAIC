@@ -26,10 +26,6 @@ pub fn handle_constraint_event(
         //     event.constraints[0].transform.rotation - event.constraints[1].transform.rotation;
         (*transform).rotation *= event.constraints[1].transform.rotation.normalize();
         action_list.0.push(event.clone().into());
-        println!(
-            "{displacement}, {:?}",
-            transform.rotation.to_euler(EulerRot::XYZ)
-        );
     }
 }
 
