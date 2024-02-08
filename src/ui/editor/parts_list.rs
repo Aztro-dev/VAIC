@@ -1,4 +1,4 @@
-use crate::{placing::PlacedPart, ui::editor::EditorUIComponent};
+use crate::{actions::ActionList, placing::PlacedPart, ui::editor::EditorUIComponent};
 use bevy::prelude::*;
 
 #[derive(Component)]
@@ -7,7 +7,7 @@ pub struct PartsList;
 pub fn spawn_parts_list(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    placed_already: Res<crate::placing::ActionList>,
+    placed_already: Res<ActionList>,
 ) {
     commands
         .spawn((
@@ -110,7 +110,7 @@ pub fn spawn_parts_list(
 pub fn update_parts_list(
     mut commands: Commands,
     mut parts_list_query: Query<Entity, With<PartsList>>,
-    recently_placed: Res<crate::placing::ActionList>,
+    recently_placed: Res<ActionList>,
     asset_server: Res<AssetServer>,
 ) {
     if !recently_placed.is_changed() {
@@ -175,7 +175,7 @@ pub struct RefreshPartsList;
 pub fn refresh_parts_list(
     mut commands: Commands,
     mut parts_list_query: Query<Entity, With<PartsList>>,
-    recently_placed: Res<crate::placing::ActionList>,
+    recently_placed: Res<ActionList>,
     asset_server: Res<AssetServer>,
     mut refresh_parts_list_reader: EventReader<RefreshPartsList>,
 ) {

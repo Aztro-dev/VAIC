@@ -33,10 +33,14 @@ use cursor::CursorPlugin;
 mod saving;
 use saving::SavingPlugin;
 
+mod actions;
+use actions::ActionList;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
         .insert_resource(Msaa::Sample4)
+        .insert_resource(ActionList(vec![]))
         .add_plugins((
             DefaultPlugins
                 .set(WindowPlugin {
