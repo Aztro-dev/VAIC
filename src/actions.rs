@@ -1,5 +1,6 @@
 use crate::constraints::ConstraintEvent;
-use crate::placing::PlacedPart;
+use crate::placing::{Part, PartName, PlacedPart};
+use crate::ui::editor::handle::ModelHandles;
 use bevy::prelude::*;
 
 pub struct ActionsPlugin;
@@ -20,7 +21,7 @@ pub struct ActionList(pub Vec<Action>);
 pub enum Action {
     Placed(String, Entity),
     Constrained(ConstraintEvent),
-    Deleted(String, Transform),
+    Deleted(Entity, String, Transform),
     PlaceHolder,
 }
 
@@ -31,18 +32,18 @@ impl Action {
             _ => false,
         }
     }
-    pub fn is_constrained(&self) -> bool {
-        match self {
-            Self::Constrained(_) => true,
-            _ => false,
-        }
-    }
-    pub fn is_deleted(&self) -> bool {
-        match self {
-            Self::Deleted(_, _) => true,
-            _ => false,
-        }
-    }
+    // pub fn is_constrained(&self) -> bool {
+    //     match self {
+    //         Self::Constrained(_) => true,
+    //         _ => false,
+    //     }
+    // }
+    // pub fn is_deleted(&self) -> bool {
+    //     match self {
+    //         Self::Deleted(_, _) => true,
+    //         _ => false,
+    //     }
+    // }
     pub fn is_placeholder(&self) -> bool {
         match self {
             Self::PlaceHolder => true,
@@ -90,6 +91,8 @@ fn undo_move(
     mut transform_query: Query<&mut Transform, With<crate::placing::Part>>,
     keyboard: Res<Input<KeyCode>>,
     mut refresh_parts_list_writer: EventWriter<crate::ui::editor::parts_list::RefreshPartsList>,
+    model_handles: Res<ModelHandles>,
+    mut add_constraints_event: EventWriter<crate::constraints::AddConstraintsEvent>,
 ) {
     if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
         if action_list.0.is_empty() {
@@ -107,7 +110,7 @@ fn undo_move(
         if last_action_index >= action_list.0.len() {
             return;
         }
-        match *last_action {
+        match last_action.clone() {
             Action::Placed(_, entity) => {
                 commands.entity(entity).despawn_recursive();
             }
@@ -120,8 +123,11 @@ fn undo_move(
                 (*transform).translation += displacement;
                 (*transform).rotation = constraint_event.constraints[0].transform.rotation;
             }
-            _ => {
-                println!("Not handled {:?} yet!", last_action);
+            Action::Deleted(_, _, _) => {
+                println!("Undoing a delete isn't supported yet!");
+            }
+            Action::PlaceHolder => {
+                println!("PlaceHolder");
                 return;
             }
         }

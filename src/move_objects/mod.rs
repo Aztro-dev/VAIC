@@ -3,6 +3,7 @@ mod ui;
 use core::f32::consts::PI;
 
 use crate::{
+    actions::{Action, ActionList},
     constraints::ConstrainState,
     placing::{CurrentlyPlacing, Part, PlacingState},
     settings::Settings,
@@ -34,7 +35,7 @@ impl Plugin for MoveObjectsPlugin {
                 (
                     update,
                     select_object.run_if(not(in_state(PlacingState::Placing))),
-                    (unselect_object, ui::change_gizmo_mode)
+                    (unselect_object, ui::change_gizmo_mode, delete_object)
                         .run_if(in_state(MoveObjectsState::Moving)),
                 )
                     .run_if(in_state(crate::ui::UIState::Editor)),
@@ -240,5 +241,29 @@ fn unselect_object(
     moving_state.set(MoveObjectsState::NotMoving);
     if let Some(entity) = target_query.get_single_mut().ok() {
         commands.entity(entity).remove::<CurrentlyMoving>();
+    }
+}
+
+fn delete_object(
+    mut commands: Commands,
+    target_query: Query<(Entity, &Name, &Transform), With<CurrentlyMoving>>,
+    mut moving_state: ResMut<NextState<MoveObjectsState>>,
+    keyboard: Res<Input<KeyCode>>,
+    mut action_list: ResMut<ActionList>,
+) {
+    if !keyboard.just_pressed(KeyCode::X) {
+        return;
+    }
+    moving_state.set(MoveObjectsState::NotMoving);
+    if let Some(target) = target_query.get_single().ok() {
+        let entity = target.0;
+        let part_name = target.1;
+        let transform = target.2;
+        action_list.0.push(Action::Deleted(
+            entity,
+            part_name.to_string().clone(),
+            transform.clone(),
+        ));
+        commands.entity(entity).despawn_recursive();
     }
 }
