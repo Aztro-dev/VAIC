@@ -1,6 +1,9 @@
 use std::f32::consts::PI;
 
 use crate::placing::*;
+use crate::ui::editor::Models;
+use bevy::gltf::Gltf;
+use bevy::gltf::GltfMesh;
 use bevy::prelude::*;
 
 use super::ConstrainComponent;
@@ -15,6 +18,10 @@ pub fn add_constraints_event(
     mut add_constraints_event_reader: EventReader<AddConstraintsEvent>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server_gltf: Res<Assets<Gltf>>,
+    asset_server_gltf_mesh: Res<Assets<GltfMesh>>,
+    // asset_server_mesh: Res<Assets<Mesh>>,
+    models: Res<Models>,
 ) {
     for event in add_constraints_event_reader.read() {
         let entity = event.0;
@@ -24,8 +31,14 @@ pub fn add_constraints_event(
         }
         let part_name = part_name.unwrap();
 
-        let stripped_name = crate::ui::editor::reverse_model_name(part_name.0.clone());
-        let constraints: Vec<ConstraintData> = get_constraint_data(stripped_name.clone());
+        let folder = models.folder.clone();
+        let constraints: Vec<ConstraintData> = get_constraint_data(
+            part_name.0.clone(),
+            folder,
+            asset_server_gltf.as_ref(),
+            asset_server_gltf_mesh.as_ref(),
+            // asset_server_mesh.as_ref(),
+        );
 
         let mut entity_list: Vec<Entity> = Vec::new();
         for constraint in constraints.iter() {
@@ -54,7 +67,40 @@ pub fn add_constraints_event(
     }
 }
 
-fn get_constraint_data(name: String) -> Vec<ConstraintData> {
+fn get_constraint_data(
+    name: String,
+    folder: Vec<Handle<Gltf>>,
+    asset_server_gltf: &Assets<Gltf>,
+    asset_server_gltf_mesh: &Assets<GltfMesh>,
+    // asset_server_mesh: &Assets<Mesh>,
+) -> Vec<ConstraintData> {
+    let name = String::from_utf8(name.as_bytes()[0..name.len() - "#Scene0".len()].into())
+        .unwrap_or("Failed utf8 parse".to_string());
+
+    for asset in folder.iter() {
+        let path = asset.clone().path().unwrap().to_string();
+        if path == name.clone() {
+            if let Some(gltf) = asset_server_gltf.get(asset.clone()) {
+                for (key, handle) in gltf.named_meshes.iter() {
+                    // Constraints should start with a capital 'C'
+                    if key.as_bytes()[0] as char != 'C' {
+                        continue;
+                    }
+                    let gltf_mesh = asset_server_gltf_mesh.get(handle.clone());
+                    if gltf_mesh.is_none() {
+                        continue;
+                    }
+                    // let gltf_mesh = gltf_mesh.unwrap();
+
+                    // let mesh = asset_server_mesh.get(gltf_mesh.primitives[0].mesh.clone());
+                    //
+                    // println!("{:?}", mesh);
+                }
+            }
+        } else {
+            continue;
+        }
+    }
     // We do a little hardcoding (teehee)
     return match name.as_str() {
         "2x1 C-Channel" => vec![

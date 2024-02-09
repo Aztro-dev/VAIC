@@ -8,7 +8,6 @@ use super::UIState;
 use bevy::{gltf::Gltf, prelude::*};
 
 mod part_selector;
-pub use part_selector::reverse_model_name;
 use part_selector::spawn_part_selector;
 
 pub mod parts_list;

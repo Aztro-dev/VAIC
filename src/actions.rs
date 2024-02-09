@@ -1,6 +1,5 @@
 use crate::constraints::ConstraintEvent;
-use crate::placing::{Part, PartName, PlacedPart};
-use crate::ui::editor::handle::ModelHandles;
+use crate::placing::PlacedPart;
 use bevy::prelude::*;
 
 pub struct ActionsPlugin;
@@ -91,8 +90,6 @@ fn undo_move(
     mut transform_query: Query<&mut Transform, With<crate::placing::Part>>,
     keyboard: Res<Input<KeyCode>>,
     mut refresh_parts_list_writer: EventWriter<crate::ui::editor::parts_list::RefreshPartsList>,
-    model_handles: Res<ModelHandles>,
-    mut add_constraints_event: EventWriter<crate::constraints::AddConstraintsEvent>,
 ) {
     if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
         if action_list.0.is_empty() {

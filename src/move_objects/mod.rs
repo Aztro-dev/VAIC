@@ -7,8 +7,12 @@ use crate::{
     constraints::ConstrainState,
     placing::{CurrentlyPlacing, Part, PlacingState},
     settings::Settings,
+    ui::editor::Models,
 };
-use bevy::prelude::*;
+use bevy::{
+    gltf::{Gltf, GltfMesh},
+    prelude::*,
+};
 use bevy_egui::{egui, EguiContexts, EguiPlugin};
 use bevy_infinite_grid::InfiniteGrid;
 use bevy_mod_raycast::prelude::*;
@@ -185,6 +189,10 @@ fn select_object(
     mouse_buttons: Res<Input<MouseButton>>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
     constrain_state: Res<State<ConstrainState>>,
+    models: Res<Models>,
+    mesh_query: Query<&Handle<Mesh>>,
+    asset_server_gltf: Res<Assets<Gltf>>,
+    asset_server_gltf_mesh: Res<Assets<GltfMesh>>,
 ) {
     if !mouse_buttons.just_pressed(MouseButton::Left) {
         return;
@@ -222,10 +230,45 @@ fn select_object(
     for entity in target_query.iter_mut() {
         commands.entity(entity).remove::<CurrentlyMoving>();
     }
+    let mut collision_entity: Option<Entity> = None;
+    for (entity, _) in intersection_array.iter() {
+        let mesh = mesh_query.get(entity.clone()).ok();
+        if mesh.is_none() {
+            continue;
+        }
+        let mesh = mesh.unwrap();
+        for handle in models.folder.iter() {
+            let gltf = asset_server_gltf.get(handle.clone());
+            if gltf.is_none() {
+                continue;
+            }
+            let gltf = gltf.unwrap();
+            for (key, solid_mesh) in gltf.named_meshes.iter() {
+                if key.as_bytes()[0] as char == 'C' {
+                    continue;
+                }
 
-    let entity = intersection_array[0].0;
+                let gltf_mesh = asset_server_gltf_mesh.get(solid_mesh.clone());
+                if gltf_mesh.is_none() {
+                    continue;
+                }
+                let gltf_mesh = gltf_mesh.unwrap();
 
-    commands.entity(entity).insert(CurrentlyMoving);
+                for primitive in gltf_mesh.primitives.iter() {
+                    let primitive_mesh = primitive.mesh.clone();
+                    if primitive_mesh.clone().id() == mesh.clone().id() {
+                        collision_entity = Some(entity.clone());
+                    }
+                }
+            }
+        }
+    }
+    if collision_entity.is_none() {
+        return;
+    }
+    let collision_entity = collision_entity.unwrap();
+
+    commands.entity(collision_entity).insert(CurrentlyMoving);
     moving_state.set(MoveObjectsState::Moving);
 }
 
