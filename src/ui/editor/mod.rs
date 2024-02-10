@@ -7,7 +7,7 @@ use self::top_bar::update_top_bar_timer;
 use super::UIState;
 use bevy::{gltf::Gltf, prelude::*};
 
-mod part_selector;
+pub mod part_selector;
 use part_selector::spawn_part_selector;
 
 pub mod parts_list;
