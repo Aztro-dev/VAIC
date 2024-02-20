@@ -13,7 +13,7 @@ use bevy::{
     gltf::{Gltf, GltfMesh},
     prelude::*,
 };
-use bevy_egui::{egui, EguiContexts, EguiPlugin};
+use bevy_egui::{EguiContexts, EguiPlugin};
 use bevy_infinite_grid::InfiniteGrid;
 use bevy_mod_raycast::prelude::*;
 use egui::{Color32, LayerId};

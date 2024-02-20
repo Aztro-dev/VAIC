@@ -3,7 +3,6 @@ use bevy::prelude::*;
 use egui_gizmo::GizmoMode;
 use smooth_bevy_cameras::controllers::orbit::ControlState;
 
-use bevy_egui::egui;
 use core::f32::consts::TAU;
 use egui::{pos2, Align2, Color32, FontId, Ui};
 
