@@ -39,7 +39,7 @@ pub fn select_constraints(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
 
-    mouse: Res<Input<MouseButton>>,
+    mouse: Res<ButtonInput<MouseButton>>,
 ) {
     if let Some(cursor_ray) = **cursor_ray {
         let intersection_array = &raycast.cast_ray(

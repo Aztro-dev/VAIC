@@ -27,7 +27,7 @@ pub enum UIState {
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<UIState>()
+        app.init_state::<UIState>()
             .add_systems(
                 Update,
                 handle_esc.run_if(
@@ -41,7 +41,7 @@ impl Plugin for UIPlugin {
 }
 
 fn handle_esc(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut ui_state: ResMut<NextState<UIState>>,
     current_state: Res<State<UIState>>,
 ) {

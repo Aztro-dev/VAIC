@@ -2,7 +2,7 @@ use bevy::core::TaskPoolThreadAssignmentPolicy;
 use bevy::prelude::*;
 use bevy::tasks::available_parallelism;
 use bevy::window::{PresentMode, WindowTheme};
-use bevy_fps_counter::FpsCounterPlugin;
+// use bevy_fps_counter::FpsCounterPlugin;
 use bevy_framepace::*;
 use bevy_infinite_grid::{
     InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
@@ -45,7 +45,6 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "VAIC".to_string(),
-                        fit_canvas_to_parent: true,
                         present_mode: PresentMode::AutoVsync,
                         window_theme: Some(WindowTheme::Dark),
                         ..default()
@@ -76,7 +75,7 @@ fn main() {
             SavingPlugin,
             ActionsPlugin,
             DefaultRaycastingPlugin,
-            FpsCounterPlugin,
+            // FpsCounterPlugin,
             CursorPlugin,
             bevy_framepace::FramepacePlugin,
         ))
@@ -93,7 +92,7 @@ fn setup(
 ) {
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 3.0,
+        brightness: 10000.0,
     });
 
     commands.spawn(InfiniteGridBundle {
@@ -107,15 +106,9 @@ fn setup(
     });
     commands.spawn((
         PbrBundle {
-            mesh: meshes.add(
-                shape::Plane {
-                    size: 1_000_000.0, // Basically infinite if you really think about it
-                    ..default()
-                }
-                .into(),
-            ),
+            mesh: meshes.add(Plane3d::default().mesh().size(1_000_000.0, 1_000_000.0)),
             transform: Transform::from_xyz(0.0, 0.0, 0.0),
-            material: materials.add(Color::rgba(1.0, 0.0, 0.0, 0.0).into()),
+            material: materials.add(Color::rgba(1.0, 0.0, 0.0, 0.0)),
             visibility: Visibility::Visible,
             ..default()
         },
@@ -127,9 +120,9 @@ fn setup(
 
 fn toggle_grid_visibility(
     mut visibility_query: Query<&mut Visibility, With<InfiniteGrid>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
-    if keyboard.just_pressed(KeyCode::Equals) {
+    if keyboard.just_pressed(KeyCode::Equal) {
         let mut visibility = visibility_query.get_single_mut().unwrap();
         match *visibility {
             Visibility::Visible => {

@@ -32,7 +32,7 @@ impl Into<super::ConstraintEvent> for CurrentConstraintOperation {
 
 impl Plugin for ConstraintUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<MovingWindowState>()
+        app.init_state::<MovingWindowState>()
             .init_resource::<CurrentConstraintOperation>()
             .add_systems(OnEnter(ConstrainState::Constraining), spawn_ui)
             .add_systems(
@@ -107,7 +107,7 @@ enum MovingWindowState {
 fn track_moving_window_state(
     curr_moving_window_state: Res<State<MovingWindowState>>,
     mut next_curr_moving_window_state: ResMut<NextState<MovingWindowState>>,
-    mouse_buttons: Res<Input<MouseButton>>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
     title_constraint_ui_query: Query<&RelativeCursorPosition, With<ConstraintUiTitleBar>>,
 ) {
     if *curr_moving_window_state == MovingWindowState::NotMoving {

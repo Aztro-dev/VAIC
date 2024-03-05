@@ -25,11 +25,7 @@ pub fn add_constraints_event(
 ) {
     for event in add_constraints_event_reader.read() {
         let entity = event.0;
-        let part_name: Option<&PartName> = part_query.get_component(entity).ok();
-        if part_name.is_none() {
-            continue;
-        }
-        let part_name = part_name.unwrap();
+        let part_name: &PartName = part_query.get(entity).unwrap();
 
         let name = crate::ui::editor::part_selector::reverse_model_name(part_name.0.clone());
 
@@ -48,12 +44,11 @@ pub fn add_constraints_event(
             let id = commands
                 .spawn(PbrBundle {
                     visibility: Visibility::Hidden,
-                    mesh: meshes.add(Mesh::from(shape::Cylinder {
+                    mesh: meshes.add(Cylinder {
                         radius: 0.10,
-                        height: 0.07,
-                        resolution: 64,
+                        half_height: 0.07 / 2.0,
                         ..default()
-                    })),
+                    }),
                     material: materials.add(StandardMaterial {
                         base_color: Color::RED,
                         ..default()

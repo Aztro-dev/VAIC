@@ -39,10 +39,10 @@ fn spawn_camera(mut commands: Commands, settings: Res<Settings>) {
 
 fn switch_control_state(
     mut query: Query<&mut OrbitCameraController>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut settings: ResMut<Settings>,
 ) {
-    if !keyboard.just_pressed(KeyCode::P) {
+    if !keyboard.just_pressed(KeyCode::KeyP) {
         return;
     }
     if let Ok(mut controller) = query.get_single_mut() {
@@ -53,9 +53,9 @@ fn switch_control_state(
 
 fn switch_projection(
     mut camera_query: Query<&mut Projection, With<Camera3d>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
-    if !keyboard.just_pressed(KeyCode::O) {
+    if !keyboard.just_pressed(KeyCode::KeyO) {
         return;
     }
     for mut projection in camera_query.iter_mut() {

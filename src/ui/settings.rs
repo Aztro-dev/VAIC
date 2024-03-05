@@ -140,7 +140,7 @@ fn button_system(
                 *color = Color::hex("AAAAAA").unwrap().into();
             }
             Interaction::Hovered => {
-                (*window).cursor.icon = CursorIcon::Hand;
+                (*window).cursor.icon = CursorIcon::Pointer;
                 *color = Color::hex("999999").unwrap().into();
             }
             Interaction::None => {

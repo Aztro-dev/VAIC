@@ -32,7 +32,7 @@ pub enum MoveObjectsState {
 impl Plugin for MoveObjectsPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(EguiPlugin)
-            .add_state::<MoveObjectsState>()
+            .init_state::<MoveObjectsState>()
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
@@ -186,7 +186,7 @@ fn select_object(
     placed_query: Query<Entity, (With<Part>, Without<CurrentlyPlacing>)>,
     grid_query: Query<Entity, With<InfiniteGrid>>,
     mut target_query: Query<Entity, With<CurrentlyMoving>>,
-    mouse_buttons: Res<Input<MouseButton>>,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
     constrain_state: Res<State<ConstrainState>>,
     models: Res<Models>,
@@ -276,7 +276,7 @@ fn unselect_object(
     mut commands: Commands,
     mut target_query: Query<Entity, With<CurrentlyMoving>>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
     if !keyboard.just_pressed(KeyCode::Escape) {
         return;
@@ -291,10 +291,10 @@ fn delete_object(
     mut commands: Commands,
     target_query: Query<(Entity, &Name, &Transform), With<CurrentlyMoving>>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut action_list: ResMut<ActionList>,
 ) {
-    if !keyboard.just_pressed(KeyCode::X) {
+    if !keyboard.just_pressed(KeyCode::KeyX) {
         return;
     }
     moving_state.set(MoveObjectsState::NotMoving);
