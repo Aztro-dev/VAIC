@@ -36,7 +36,7 @@ pub struct Models {
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<parts_list::RefreshPartsList>()
-            .add_state::<LoadingStates>()
+            .init_state::<LoadingStates>()
             .add_loading_state(
                 LoadingState::new(LoadingStates::AssetLoading)
                     .continue_to_state(LoadingStates::Next)

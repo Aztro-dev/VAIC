@@ -8,11 +8,11 @@ use egui::{pos2, Align2, Color32, FontId, Ui};
 
 // TODO: Make this an actual UI
 pub fn change_gizmo_mode(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut options: ResMut<GizmoOptions>,
     settings: Res<Settings>,
 ) {
-    if keyboard.just_pressed(KeyCode::T) {
+    if keyboard.just_pressed(KeyCode::KeyT) {
         options.gizmo_mode = match options.gizmo_mode {
             GizmoMode::Rotate => GizmoMode::Translate,
             GizmoMode::Translate => GizmoMode::Rotate,
@@ -22,7 +22,7 @@ pub fn change_gizmo_mode(
     if settings.get_control_state() == ControlState::PCMode {
         options.precision_snap = !keyboard.pressed(KeyCode::ShiftLeft);
     } else {
-        options.precision_snap = !keyboard.pressed(KeyCode::L);
+        options.precision_snap = !keyboard.pressed(KeyCode::KeyL);
     }
 }
 

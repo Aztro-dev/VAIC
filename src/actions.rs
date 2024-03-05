@@ -88,10 +88,10 @@ fn undo_move(
     mut commands: Commands,
     mut action_list: ResMut<ActionList>,
     mut transform_query: Query<&mut Transform, With<crate::placing::Part>>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut refresh_parts_list_writer: EventWriter<crate::ui::editor::parts_list::RefreshPartsList>,
 ) {
-    if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::Z) {
+    if keyboard.pressed(KeyCode::ControlLeft) && keyboard.just_pressed(KeyCode::KeyZ) {
         if action_list.0.is_empty() {
             return;
         }

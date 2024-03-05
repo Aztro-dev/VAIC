@@ -29,9 +29,9 @@ impl Plugin for SavingPlugin {
 
 fn check_for_save_key(
     mut save_event_writer: EventWriter<SaveEvent>,
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
 ) {
-    if keyboard.just_pressed(KeyCode::S) && keyboard.pressed(KeyCode::ControlLeft) {
+    if keyboard.just_pressed(KeyCode::KeyS) && keyboard.pressed(KeyCode::ControlLeft) {
         save_event_writer.send(SaveEvent {});
     }
 }

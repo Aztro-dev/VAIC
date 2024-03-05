@@ -10,7 +10,7 @@ pub struct PlacingPlugin;
 
 impl Plugin for PlacingPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<PlacingState>()
+        app.init_state::<PlacingState>()
             .add_event::<PlacingEvent>()
             .add_systems(
                 Update,
@@ -85,7 +85,7 @@ fn placing(
     placed_query: Query<Entity, With<Part>>,
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
-    mouse: Res<Input<MouseButton>>,
+    mouse: Res<ButtonInput<MouseButton>>,
     mut action_list: ResMut<ActionList>,
     mut event_writer: EventWriter<PlacingEvent>, // To spawn multiple parts
     model_handles: Res<ModelHandles>,
@@ -127,12 +127,12 @@ fn placing(
                 },
             );
             if intersection_array.is_empty() {
-                transform.translation = cursor_ray.position(PLACING_RADIUS);
+                transform.translation = cursor_ray.get_point(PLACING_RADIUS);
                 continue;
             }
             let intersection_data = &intersection_array[0].1;
             if intersection_data.distance() >= PLACING_RADIUS {
-                transform.translation = cursor_ray.position(PLACING_RADIUS);
+                transform.translation = cursor_ray.get_point(PLACING_RADIUS);
                 continue;
             }
             transform.translation = intersection_data.position();
@@ -141,7 +141,7 @@ fn placing(
 }
 
 fn stop_placing_mode(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut placing_state: ResMut<NextState<PlacingState>>,
     mut action_list: ResMut<ActionList>,
     mut commands: Commands,

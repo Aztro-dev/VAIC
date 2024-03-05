@@ -16,7 +16,7 @@ pub struct ConstraintPlugin;
 
 impl Plugin for ConstraintPlugin {
     fn build(&self, app: &mut App) {
-        app.add_state::<ConstrainState>()
+        app.init_state::<ConstrainState>()
             .add_event::<AddConstraintsEvent>()
             .add_event::<ConstraintEvent>()
             .add_plugins(ConstraintUiPlugin)
@@ -51,18 +51,18 @@ pub struct ConstraintData {
 }
 
 fn check_for_c(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut placing_state: ResMut<NextState<PlacingState>>,
     mut constrain_state: ResMut<NextState<ConstrainState>>,
 ) {
-    if keyboard.just_pressed(KeyCode::C) {
+    if keyboard.just_pressed(KeyCode::KeyC) {
         placing_state.set(PlacingState::PlacingDisabled);
         constrain_state.set(ConstrainState::Constraining);
     }
 }
 
 fn exit_constrain(
-    keyboard: Res<Input<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut placing_state: ResMut<NextState<PlacingState>>,
     mut constrain_state: ResMut<NextState<ConstrainState>>,
 ) {
