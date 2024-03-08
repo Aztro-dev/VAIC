@@ -28,6 +28,7 @@ pub enum UIState {
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<UIState>()
+            .add_systems(Startup, setup)
             .add_systems(
                 Update,
                 handle_esc.run_if(
@@ -38,6 +39,16 @@ impl Plugin for UIPlugin {
             )
             .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin, RoundUiPlugin));
     }
+}
+
+fn setup(mut commands: Commands) {
+    commands.spawn(Camera2dBundle {
+        camera: Camera {
+            order: isize::MAX,
+            ..default()
+        },
+        ..default()
+    });
 }
 
 fn handle_esc(

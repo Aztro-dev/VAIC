@@ -12,12 +12,12 @@ impl MostRecentSave {
         if self.0 == std::time::SystemTime::UNIX_EPOCH {
             return None;
         }
-        return Some(
+        Some(
             std::time::SystemTime::now()
                 .duration_since(self.0)
                 .ok()?
                 .as_secs(),
-        );
+        )
     }
 }
 
@@ -37,7 +37,7 @@ impl ToString for MostRecentSave {
                 most_recent_save_str = format!("Saved {} mins ago", most_recent_save / 60);
             }
         }
-        return most_recent_save_str;
+        most_recent_save_str
     }
 }
 
@@ -55,9 +55,9 @@ pub struct UpdateSaveCountTimer {
 
 impl Default for UpdateSaveCountTimer {
     fn default() -> Self {
-        return Self {
+        Self {
             timer: Timer::new(std::time::Duration::from_secs(1), TimerMode::Repeating),
-        };
+        }
     }
 }
 

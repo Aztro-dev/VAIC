@@ -20,6 +20,7 @@ pub struct ActionList(pub Vec<Action>);
 pub enum Action {
     Placed(String, Entity),
     Constrained(ConstraintEvent),
+    Moved(Entity, Transform, Transform),
     Deleted(Entity, String, Transform),
     PlaceHolder,
 }
@@ -31,18 +32,6 @@ impl Action {
             _ => false,
         }
     }
-    // pub fn is_constrained(&self) -> bool {
-    //     match self {
-    //         Self::Constrained(_) => true,
-    //         _ => false,
-    //     }
-    // }
-    // pub fn is_deleted(&self) -> bool {
-    //     match self {
-    //         Self::Deleted(_, _) => true,
-    //         _ => false,
-    //     }
-    // }
     pub fn is_placeholder(&self) -> bool {
         match self {
             Self::PlaceHolder => true,
@@ -126,6 +115,15 @@ fn undo_move(
             Action::PlaceHolder => {
                 println!("PlaceHolder");
                 return;
+            }
+            Action::Moved(_entity, _previous_transform, _current_transform) => {
+                //     commands.entity(entity).log_components();
+                //     let mut transform = transform_query.get_mut(entity).unwrap();
+                //     if transform.clone() != current_transform {
+                //         *transform = current_transform;
+                //     } else {
+                //         *transform = previous_transform;
+                //     }
             }
         }
 

@@ -121,7 +121,7 @@ fn placing(
                         if let Ok(_worked) = placed_query.get(filter_entity) {
                             return true;
                         }
-                        return false;
+                        false
                     },
                     ..default()
                 },

@@ -84,11 +84,12 @@ pub struct CurrentlyMoving;
 
 fn update(
     mut contexts: EguiContexts,
-    camera_q: Query<(&Camera, &Transform), Without<CurrentlyMoving>>,
-    mut target_q: Query<&mut Transform, With<CurrentlyMoving>>,
+    camera_q: Query<(&Camera, &Transform), (Without<CurrentlyMoving>, Without<Camera2d>)>,
+    mut target_q: Query<(Entity, &mut Transform), With<CurrentlyMoving>>,
     mut gizmo_options: ResMut<GizmoOptions>,
     constrain_state: Res<State<ConstrainState>>,
     window: Query<&Window>,
+    mut action_list: ResMut<ActionList>,
 ) {
     if *constrain_state == ConstrainState::Constraining {
         return;
@@ -134,7 +135,7 @@ fn update(
                     ..gizmo_options.visuals
                 };
 
-                let model_matrix = target_q.single_mut().compute_matrix();
+                let model_matrix = target_q.single_mut().1.clone().compute_matrix();
 
                 let gizmo = Gizmo::new("Move Objects Gizmo")
                     .view_matrix(view_matrix.to_cols_array_2d().into())
@@ -150,7 +151,8 @@ fn update(
                 gizmo_options.last_result = gizmo.interact(ui);
 
                 if let Some(gizmo_response) = gizmo_options.last_result {
-                    let mut target_transform = target_q.single_mut();
+                    let (target_entity, mut target_transform) = target_q.single_mut();
+                    let previous_transform = target_transform.clone();
 
                     // We have to do some manual translation because of a new update in the
                     // egui-gizmo dependency.
@@ -174,6 +176,12 @@ fn update(
                     );
 
                     ui::show_gizmo_status(ui, gizmo_response, window_size);
+
+                    action_list.0.push(Action::Moved(
+                        target_entity,
+                        previous_transform.clone(),
+                        target_transform.clone(),
+                    ));
                 }
             });
         });
