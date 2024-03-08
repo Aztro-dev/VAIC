@@ -1,4 +1,4 @@
-use crate::saving::save_timer;
+use crate::saving::{save_timer, SaveIcon};
 use crate::ui::editor::EditorUIComponent;
 use bevy::prelude::*;
 
@@ -23,7 +23,7 @@ pub fn spawn_top_bar(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("44444400").unwrap()),
+                background_color: BackgroundColor(Color::hex("444444").unwrap()),
                 ..default()
             },
             EditorUIComponent,
@@ -41,7 +41,7 @@ pub fn spawn_top_bar(
                         last_save.to_string(),
                         TextStyle {
                             font: asset_server.load("FiraMonoNerdFontMono-Bold.otf"),
-                            font_size: 16.0,
+                            font_size: 8.0,
                             color: Color::WHITE,
                         },
                     ),
@@ -49,6 +49,36 @@ pub fn spawn_top_bar(
                 },
                 EditorTopBarSaveTimer,
             ));
+
+            parent.spawn(ImageBundle {
+                image: UiImage {
+                    texture: asset_server.load("images/save_icon.png"),
+                    ..default()
+                },
+                style: Style {
+                    height: Val::Percent(90.0),
+                    ..default()
+                },
+                background_color: BackgroundColor(Color::WHITE),
+                visibility: Visibility::Hidden,
+                ..default()
+            });
+
+            parent
+                .spawn(ImageBundle {
+                    image: UiImage {
+                        texture: asset_server.load("images/save_icon.png"),
+                        ..default()
+                    },
+                    style: Style {
+                        height: Val::Percent(90.0),
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::WHITE),
+                    visibility: Visibility::Hidden,
+                    ..default()
+                })
+                .insert(SaveIcon);
         });
 }
 
