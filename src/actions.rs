@@ -116,7 +116,7 @@ fn undo_move(
                 println!("PlaceHolder");
                 return;
             }
-            Action::Moved(entity, previous_transform, current_transform) => {
+            Action::Moved(_entity, _previous_transform, _current_transform) => {
                 //     commands.entity(entity).log_components();
                 //     let mut transform = transform_query.get_mut(entity).unwrap();
                 //     if transform.clone() != current_transform {

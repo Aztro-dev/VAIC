@@ -41,7 +41,7 @@ pub fn spawn_top_bar(
                         last_save.to_string(),
                         TextStyle {
                             font: asset_server.load("FiraMonoNerdFontMono-Bold.otf"),
-                            font_size: 8.0,
+                            font_size: 16.0,
                             color: Color::WHITE,
                         },
                     ),
