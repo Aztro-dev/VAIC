@@ -48,7 +48,6 @@ fn show_icon_on_change(
     mut icon_query: Query<&mut Visibility, With<SaveIcon>>,
 ) {
     if action_list.is_changed() {
-        println!("Action List changed");
         let mut icon_visibility = icon_query.get_single_mut().unwrap();
         *icon_visibility = Visibility::Visible;
     }

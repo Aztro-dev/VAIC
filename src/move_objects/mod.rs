@@ -80,16 +80,17 @@ fn setup(mut commands: Commands, settings: Res<Settings>) {
 }
 
 #[derive(Component)]
-pub struct CurrentlyMoving;
+pub struct CurrentlyMoving {
+    pub initial_transform: Transform,
+}
 
 fn update(
     mut contexts: EguiContexts,
     camera_q: Query<(&Camera, &Transform), (Without<CurrentlyMoving>, Without<Camera2d>)>,
-    mut target_q: Query<(Entity, &mut Transform), With<CurrentlyMoving>>,
+    mut target_q: Query<&mut Transform, With<CurrentlyMoving>>,
     mut gizmo_options: ResMut<GizmoOptions>,
     constrain_state: Res<State<ConstrainState>>,
     window: Query<&Window>,
-    mut action_list: ResMut<ActionList>,
 ) {
     if *constrain_state == ConstrainState::Constraining {
         return;
@@ -135,7 +136,7 @@ fn update(
                     ..gizmo_options.visuals
                 };
 
-                let model_matrix = target_q.single_mut().1.clone().compute_matrix();
+                let model_matrix = target_q.single_mut().clone().compute_matrix();
 
                 let gizmo = Gizmo::new("Move Objects Gizmo")
                     .view_matrix(view_matrix.to_cols_array_2d().into())
@@ -151,8 +152,7 @@ fn update(
                 gizmo_options.last_result = gizmo.interact(ui);
 
                 if let Some(gizmo_response) = gizmo_options.last_result {
-                    let (target_entity, mut target_transform) = target_q.single_mut();
-                    let previous_transform = target_transform.clone();
+                    let mut target_transform = target_q.single_mut();
 
                     // We have to do some manual translation because of a new update in the
                     // egui-gizmo dependency.
@@ -176,12 +176,6 @@ fn update(
                     );
 
                     ui::show_gizmo_status(ui, gizmo_response, window_size);
-
-                    action_list.0.push(Action::Moved(
-                        target_entity,
-                        previous_transform.clone(),
-                        target_transform.clone(),
-                    ));
                 }
             });
         });
@@ -192,6 +186,7 @@ fn select_object(
     cursor_ray: Res<CursorRay>,
     mut raycast: Raycast,
     placed_query: Query<Entity, (With<Part>, Without<CurrentlyPlacing>)>,
+    transform_query: Query<&Transform>,
     grid_query: Query<Entity, With<InfiniteGrid>>,
     mut target_query: Query<Entity, With<CurrentlyMoving>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
@@ -276,28 +271,44 @@ fn select_object(
     }
     let collision_entity = collision_entity.unwrap();
 
-    commands.entity(collision_entity).insert(CurrentlyMoving);
+    commands.entity(collision_entity).insert(CurrentlyMoving {
+        initial_transform: transform_query.get(collision_entity).unwrap().clone(),
+    });
     moving_state.set(MoveObjectsState::Moving);
 }
 
 fn unselect_object(
     mut commands: Commands,
-    mut target_query: Query<Entity, With<CurrentlyMoving>>,
+    mut target_query: Query<(Entity, &Transform, &CurrentlyMoving)>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
     keyboard: Res<ButtonInput<KeyCode>>,
+    mut action_list: ResMut<ActionList>,
 ) {
     if !keyboard.just_pressed(KeyCode::Escape) {
         return;
     }
     moving_state.set(MoveObjectsState::NotMoving);
-    if let Some(entity) = target_query.get_single_mut().ok() {
+    if let Some(target) = target_query.get_single_mut().ok() {
+        let (entity, transform, currently_moving) = target;
         commands.entity(entity).remove::<CurrentlyMoving>();
+
+        action_list.0.push(Action::Moved(
+            entity,
+            currently_moving.initial_transform.clone(),
+            transform.clone(),
+        ));
+
+        println!(
+            "New: {:?}, Old: {:?}",
+            transform.clone(),
+            currently_moving.initial_transform.clone()
+        );
     }
 }
 
 fn delete_object(
     mut commands: Commands,
-    target_query: Query<(Entity, &Name, &Transform), With<CurrentlyMoving>>,
+    target_query: Query<(Entity, &Name, &Transform)>,
     mut moving_state: ResMut<NextState<MoveObjectsState>>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mut action_list: ResMut<ActionList>,
@@ -307,9 +318,8 @@ fn delete_object(
     }
     moving_state.set(MoveObjectsState::NotMoving);
     if let Some(target) = target_query.get_single().ok() {
-        let entity = target.0;
-        let part_name = target.1;
-        let transform = target.2;
+        let (entity, part_name, transform) = target;
+
         action_list.0.push(Action::Deleted(
             entity,
             part_name.to_string().clone(),
