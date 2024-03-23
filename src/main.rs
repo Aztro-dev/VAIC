@@ -36,6 +36,9 @@ use saving::SavingPlugin;
 mod actions;
 use actions::ActionsPlugin;
 
+mod screenshot;
+use screenshot::ScreenshotPlugin;
+
 fn main() {
     App::new()
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
@@ -74,6 +77,7 @@ fn main() {
             ConstraintPlugin,
             SavingPlugin,
             ActionsPlugin,
+            ScreenshotPlugin,
             DefaultRaycastingPlugin,
             // FpsCounterPlugin,
             CursorPlugin,
@@ -92,7 +96,7 @@ fn setup(
 ) {
     commands.insert_resource(AmbientLight {
         color: Color::WHITE,
-        brightness: 10000.0,
+        brightness: 8000.0,
     });
 
     commands.spawn(InfiniteGridBundle {
