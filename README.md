@@ -46,6 +46,9 @@ Please note that upon first loading the program, you might not see anything usef
 **Ctrl-Z** to undo a move (WIP-kinda)
 * If you made a place or constrain that you didn't intend for, press `Ctrl-Z` to undo the action.
 
+**F12** to take a screenshot
+* Automatically saved as `screenshot-{x}.png`
+
 ## Contributor's guide
 If you are requesting a feature or outlining a bug, make an [issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue), and make a comment requesting the appropriate [label](https://docs.github.com/en/issues/using-labels-and-milestones-to-track-work/managing-labels)
 
