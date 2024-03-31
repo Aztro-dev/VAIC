@@ -18,7 +18,7 @@ pub fn spawn_part_selector(
                 style: Style {
                     width: Val::Percent(15.0),
                     height: Val::Percent(80.0),
-                    left: Val::Percent(80.0), // 80% - 15% - 5%
+                    left: Val::Percent(85.0), // 80% - 15% - 5%
                     align_self: AlignSelf::Center,
                     justify_content: JustifyContent::Start,
                     align_items: AlignItems::Center,
