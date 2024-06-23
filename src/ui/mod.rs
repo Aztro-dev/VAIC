@@ -3,6 +3,9 @@ use bevy_round_ui::prelude::*;
 
 use crate::{constraints::ConstrainState, move_objects::MoveObjectsState, placing::PlacingState};
 
+mod main_menu;
+use main_menu::MainMenuPlugin;
+
 mod pause;
 use pause::PausePlugin;
 
@@ -37,7 +40,13 @@ impl Plugin for UIPlugin {
                         .and_then(not(in_state(MoveObjectsState::Moving))),
                 ),
             )
-            .add_plugins((PausePlugin, SettingsPlugin, EditorPlugin, RoundUiPlugin));
+            .add_plugins((
+                MainMenuPlugin,
+                PausePlugin,
+                SettingsPlugin,
+                EditorPlugin,
+                RoundUiPlugin,
+            ));
     }
 }
 
