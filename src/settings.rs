@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
-use smooth_bevy_cameras::controllers::orbit::ControlState;
 use std::fs::File;
 use std::io::Read;
 use std::io::Write;
@@ -15,27 +14,8 @@ pub struct Settings {
     pub precision_snap: bool,
 }
 
+/*
 impl Settings {
-    pub fn get_control_state(&self) -> ControlState {
-        match self.control_state {
-            0 => ControlState::PCMode,
-            1 => ControlState::TrackPadMode,
-            _ => ControlState::PCMode,
-        }
-    }
-
-    pub fn set_control_state(&mut self, control_state: ControlState) {
-        match control_state {
-            ControlState::PCMode => {
-                self.control_state = 0;
-            }
-            ControlState::TrackPadMode => {
-                self.control_state = 1;
-            }
-        }
-        self.write_changes();
-    }
-
     fn write_changes(&mut self) {
         if let Ok(mut file) = File::create(".settings.ron") {
             let settings_string = ron::ser::to_string(self).unwrap();
@@ -44,6 +24,7 @@ impl Settings {
         }
     }
 }
+*/
 
 impl Default for Settings {
     fn default() -> Self {

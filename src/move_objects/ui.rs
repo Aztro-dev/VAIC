@@ -1,17 +1,12 @@
-use crate::{move_objects::GizmoOptions, move_objects::GizmoResult, settings::Settings};
+use crate::{move_objects::GizmoOptions, move_objects::GizmoResult};
 use bevy::prelude::*;
 use egui_gizmo::GizmoMode;
-use smooth_bevy_cameras::controllers::orbit::ControlState;
 
 use core::f32::consts::TAU;
 use egui::{pos2, Align2, Color32, FontId, Ui};
 
 // TODO: Make this an actual UI
-pub fn change_gizmo_mode(
-    keyboard: Res<ButtonInput<KeyCode>>,
-    mut options: ResMut<GizmoOptions>,
-    settings: Res<Settings>,
-) {
+pub fn change_gizmo_mode(keyboard: Res<ButtonInput<KeyCode>>, mut options: ResMut<GizmoOptions>) {
     if keyboard.just_pressed(KeyCode::KeyT) {
         options.gizmo_mode = match options.gizmo_mode {
             GizmoMode::Rotate => GizmoMode::Translate,
@@ -19,11 +14,7 @@ pub fn change_gizmo_mode(
             _ => GizmoMode::Translate, // Erm what the freak
         }
     }
-    if settings.get_control_state() == ControlState::PCMode {
-        options.precision_snap = !keyboard.pressed(KeyCode::ShiftLeft);
-    } else {
-        options.precision_snap = !keyboard.pressed(KeyCode::KeyL);
-    }
+    options.precision_snap = !keyboard.pressed(KeyCode::ShiftLeft);
 }
 
 pub fn show_gizmo_status(ui: &Ui, response: GizmoResult, window_size: Vec2) {

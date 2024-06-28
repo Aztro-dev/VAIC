@@ -109,7 +109,7 @@ fn undo_move(
                 (*transform).translation += displacement;
                 (*transform).rotation = constraint_event.constraints[0].transform.rotation;
             }
-            Action::Deleted(_, _, _) => {
+            Action::Deleted(_bruh, _bruh1, _bruh2) => {
                 println!("Undoing a delete isn't supported yet!");
             }
             Action::PlaceHolder => {

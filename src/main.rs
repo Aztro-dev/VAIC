@@ -1,6 +1,4 @@
-use bevy::core::TaskPoolThreadAssignmentPolicy;
 use bevy::prelude::*;
-use bevy::tasks::available_parallelism;
 use bevy::window::{PresentMode, WindowTheme};
 // use bevy_fps_counter::FpsCounterPlugin;
 use bevy_framepace::*;
@@ -44,30 +42,16 @@ fn main() {
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
         .insert_resource(Msaa::Sample4)
         .add_plugins((
-            DefaultPlugins
-                .set(WindowPlugin {
-                    primary_window: Some(Window {
-                        title: "VAIC".to_string(),
-                        present_mode: PresentMode::AutoVsync,
-                        window_theme: Some(WindowTheme::Dark),
-                        ..default()
-                    }),
-                    close_when_requested: true,
+            DefaultPlugins.set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "VAIC".to_string(),
+                    present_mode: PresentMode::AutoVsync,
+                    window_theme: Some(WindowTheme::Dark),
                     ..default()
-                })
-                .set(TaskPoolPlugin {
-                    task_pool_options: TaskPoolOptions {
-                        compute: TaskPoolThreadAssignmentPolicy {
-                            // set the minimum # of compute threads
-                            // to the total number of available threads
-                            min_threads: available_parallelism(),
-                            max_threads: std::usize::MAX, // unlimited max threads
-                            percent: 1.0,                 // this value is irrelevant in this case
-                        },
-                        // keep the defaults for everything else
-                        ..default()
-                    },
                 }),
+                close_when_requested: true,
+                ..default()
+            }),
             PlacingPlugin,
             MoveObjectsPlugin,
             InfiniteGridPlugin,
@@ -95,8 +79,8 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands.insert_resource(AmbientLight {
-        color: Color::WHITE,
-        brightness: 8000.0,
+        brightness: 3000.0,
+        ..default()
     });
 
     commands.spawn(InfiniteGridBundle {
