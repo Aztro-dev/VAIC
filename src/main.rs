@@ -79,7 +79,7 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     commands.insert_resource(AmbientLight {
-        brightness: 3000.0,
+        brightness: 1000.0,
         ..default()
     });
 

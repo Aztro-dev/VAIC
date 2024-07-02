@@ -31,7 +31,7 @@ fn spawn_camera(mut commands: Commands, settings: Res<Settings>, asset_server: R
                     zoom: settings.zoom_sensitivity,
                 },
                 enabled_motion: EnabledMotion {
-                    pan: false,
+                    // pan: false,
                     ..default()
                 },
                 ..default()
@@ -71,17 +71,17 @@ fn update_camera(
     let mut editor_camera = editor_camera.get_single_mut().unwrap();
     let view_space_anchor = editor_camera.anchor_view_space();
     if keyboard.pressed(KeyCode::ShiftLeft) {
-        editor_camera.enabled_motion.pan = true;
+        // editor_camera.enabled_motion.pan = true;
         editor_camera.start_pan(view_space_anchor);
         for event in mouse_events.read() {
             let mut movement = event.delta * 100.0;
             movement.x *= settings.translate_sensitivity.x;
             movement.y *= settings.translate_sensitivity.y;
 
-            editor_camera.send_screenspace_input(movement);
+            // editor_camera.send_screenspace_input(movement);
         }
         editor_camera.end_move();
-        editor_camera.enabled_motion.pan = false;
+        // editor_camera.enabled_motion.pan = false;
     }
 }
 

@@ -9,7 +9,7 @@ edition = "2021"
 opt-level = "z"  # Optimize for size.
 
 [dependencies]
-bevy = "0.13.0"
+bevy = "0.13.2"
 # until bevy_infinite_grid updates to bevy version 0.13
 # bevy_infinite_grid = { git = "https://github.com/ForesightMiningSoftwareCorporation/bevy_infinite_grid", branch = "main" }
 bevy_infinite_grid = {git = "https://github.com/XYCaptain/bevy_infinite_grid", branch = "main" }
