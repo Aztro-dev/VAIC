@@ -1,11 +1,28 @@
-use bevy::prelude::*;
-use bevy::window::{PresentMode, WindowTheme};
-// use bevy_fps_counter::FpsCounterPlugin;
+use bevy::{
+    app::{App, Startup, Update},
+    asset::Assets,
+    ecs::{
+        query::With,
+        system::{Commands, Query, Res, ResMut},
+    },
+    input::{keyboard::KeyCode, ButtonInput},
+    math::primitives::Plane3d,
+    pbr::{AmbientLight, PbrBundle, StandardMaterial},
+    prelude::{Meshable, PluginGroup},
+    render::{camera::ClearColor, color::Color, mesh::Mesh, view::Msaa, view::Visibility},
+    transform::components::Transform,
+    utils::default,
+    window::{
+        Window, {PresentMode, WindowTheme},
+    },
+};
+
 use bevy_framepace::*;
 use bevy_infinite_grid::{
     InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
 };
-use bevy_mod_raycast::prelude::*;
+use bevy_mod_raycast::{prelude::RaycastMesh, DefaultRaycastingPlugin};
+// use bevy_fps_counter::FpsCounterPlugin;
 
 mod placing;
 use placing::PlacingPlugin;
@@ -42,7 +59,7 @@ fn main() {
         .insert_resource(ClearColor(Color::hex("333333").unwrap()))
         .insert_resource(Msaa::Sample4)
         .add_plugins((
-            DefaultPlugins.set(WindowPlugin {
+            bevy::prelude::DefaultPlugins.set(bevy::window::WindowPlugin {
                 primary_window: Some(Window {
                     title: "VAIC".to_string(),
                     present_mode: PresentMode::AutoVsync,
@@ -52,6 +69,8 @@ fn main() {
                 close_when_requested: true,
                 ..default()
             }),
+        ))
+        .add_plugins((
             PlacingPlugin,
             MoveObjectsPlugin,
             InfiniteGridPlugin,

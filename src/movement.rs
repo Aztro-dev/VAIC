@@ -1,6 +1,19 @@
-use bevy::input::mouse::MouseMotion;
-use bevy::pbr::ClusterConfig;
-use bevy::prelude::*;
+use bevy::{
+    app::{App, Plugin, Startup, Update},
+    asset::AssetServer,
+    core_pipeline::core_3d::{Camera3d, Camera3dBundle},
+    ecs::{
+        event::EventReader,
+        query::With,
+        system::{Commands, Query, Res},
+    },
+    input::{keyboard::KeyCode, mouse::MouseMotion, ButtonInput},
+    math::Vec3,
+    pbr::{environment_map::EnvironmentMapLight, ClusterConfig},
+    render::camera::{OrthographicProjection, Projection},
+    transform::components::Transform,
+    utils::default,
+};
 use bevy_editor_cam::prelude::*;
 use bevy_infinite_grid::GridShadowCamera;
 

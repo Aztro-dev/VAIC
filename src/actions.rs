@@ -1,6 +1,18 @@
 use crate::constraints::ConstraintEvent;
 use crate::placing::PlacedPart;
-use bevy::prelude::*;
+use bevy::{
+    app::{App, Plugin, Update},
+    ecs::{
+        entity::Entity,
+        event::EventWriter,
+        query::With,
+        schedule::common_conditions::in_state,
+        system::{Commands, Query, Res, ResMut, Resource},
+    },
+    input::{keyboard::KeyCode, ButtonInput},
+    prelude::{DespawnRecursiveExt, IntoSystemConfigs},
+    transform::components::Transform,
+};
 
 pub struct ActionsPlugin;
 
