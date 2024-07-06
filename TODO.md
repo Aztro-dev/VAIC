@@ -1,4 +1,4 @@
-### TODO
+# TODO
 
 Load constraints from meshes (don't link everything as one mesh)
 
@@ -23,3 +23,7 @@ Undo translations/rotations
 Load to/from files (save functionality)
 
 - Should contain full (up to like 50 actions) object/action tracking, so you can Ctrl-Z
+
+UI Overhaul
+
+- Could use a crate such as [bevy_blur_regions](https://github.com/atbentley/bevy_blur_regions) to make a cool effect
