@@ -1,25 +1,13 @@
-use bevy::{
-    app::{App, Startup, Update},
-    asset::Assets,
-    ecs::{
-        query::With,
-        system::{Commands, Query, Res, ResMut},
-    },
-    input::{keyboard::KeyCode, ButtonInput},
-    math::primitives::Plane3d,
-    pbr::{AmbientLight, PbrBundle, StandardMaterial},
-    prelude::{Meshable, PluginGroup},
-    render::{camera::ClearColor, color::Color, mesh::Mesh, view::Msaa, view::Visibility},
-    transform::components::Transform,
-    utils::default,
-    window::{
-        Window, {PresentMode, WindowTheme},
-    },
-};
+use bevy::pbr::ClusterConfig;
+use bevy::prelude::*;
+use bevy::window::{PresentMode, WindowTheme};
 
+use bevy_blur_regions::prelude::BlurRegionsPlugin;
+use bevy_blur_regions::BlurRegionsCamera;
+use bevy_editor_cam::prelude::{EditorCam, EnabledMotion, Sensitivity};
 use bevy_framepace::*;
 use bevy_infinite_grid::{
-    InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
+    GridShadowCamera, InfiniteGrid, InfiniteGridBundle, InfiniteGridPlugin, InfiniteGridSettings,
 };
 use bevy_mod_raycast::{prelude::RaycastMesh, DefaultRaycastingPlugin};
 // use bevy_fps_counter::FpsCounterPlugin;
@@ -37,7 +25,7 @@ mod ui;
 use ui::UIPlugin;
 
 mod settings;
-use settings::SettingsPlugin;
+use settings::{Settings, SettingsPlugin};
 
 mod constraints;
 use constraints::ConstraintPlugin;
@@ -73,7 +61,6 @@ fn main() {
         .add_plugins((
             PlacingPlugin,
             MoveObjectsPlugin,
-            InfiniteGridPlugin,
             MovementPlugin,
             UIPlugin,
             SettingsPlugin,
@@ -81,9 +68,11 @@ fn main() {
             SavingPlugin,
             ActionsPlugin,
             ScreenshotPlugin,
+            CursorPlugin,
             DefaultRaycastingPlugin,
             // FpsCounterPlugin,
-            CursorPlugin,
+            InfiniteGridPlugin,
+            BlurRegionsPlugin::default(),
             bevy_framepace::FramepacePlugin,
         ))
         .add_systems(Startup, setup)
@@ -96,7 +85,37 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
+    settings: Res<Settings>,
 ) {
+    commands
+        .spawn(Camera3dBundle {
+            transform: Transform::from_xyz(-7.0, 7.5, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        })
+        .insert((
+            BlurRegionsCamera::default(),
+            GridShadowCamera,
+            EditorCam {
+                sensitivity: Sensitivity {
+                    orbit: settings.rotate_sensitivity,
+                    zoom: settings.zoom_sensitivity,
+                },
+                enabled_motion: EnabledMotion {
+                    // pan: false,
+                    ..default()
+                },
+                ..default()
+            },
+            // Doesn't work on my machine for some reason
+            EnvironmentMapLight {
+                intensity: 1000.0,
+                diffuse_map: asset_server.load("environment_maps/diffuse_rgb9e5_zstd.ktx2"),
+                specular_map: asset_server.load("environment_maps/specular_rgb9e5_zstd.ktx2"),
+            }, // ),
+            ClusterConfig::Single,
+        ));
+
     commands.insert_resource(AmbientLight {
         brightness: 1000.0,
         ..default()

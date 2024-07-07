@@ -1,6 +1,7 @@
 use super::UIState;
 use bevy::app::AppExit;
 use bevy::prelude::*;
+use bevy_blur_regions::BlurRegion;
 use bevy_round_ui::prelude::*;
 
 pub struct MainMenuPlugin;
@@ -41,7 +42,7 @@ fn spawn_ui(
                     ..default()
                 },
                 material: materials.add(RoundUiMaterial {
-                    background_color: Color::hex("444444").unwrap(),
+                    background_color: Color::rgba(0.0, 0.0, 0.0, 0.1),
                     border_radius: RoundUiBorder::all(crate::ui::UI_RADIUS).into(),
                     size: Vec2::new(window_width, window_height),
                     ..default()
@@ -49,6 +50,7 @@ fn spawn_ui(
                 ..default()
             },
             MainMenuUIComponent,
+            BlurRegion,
         ))
         .with_children(|parent| {
             parent

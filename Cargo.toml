@@ -22,11 +22,10 @@ bevy_framepace = "0.15.0"
 chrono = "0.4.31"
 egui = "0.26.2"
 bevy_asset_loader = "0.20.0"
-bevy_egui = "0.25"
+bevy_egui = "0.26"
 bevy_editor_cam = "0.2.5"
 bevy_mod_picking = "0.19.1"
+bevy_blur_regions = "0.2.0"
 
 [dependencies.bevy]
 version = "0.13.2"
-default-features = false
-features = ["bevy_asset", "bevy_render", "bevy_scene", "bevy_pbr"]

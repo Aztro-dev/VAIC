@@ -1,8 +1,12 @@
+use crate::actions::ActionList;
 use crate::constraints::ConstrainState;
+use crate::placing::CurrentlyPlacing;
 use crate::placing::PlacingEvent;
+use crate::placing::PlacingState;
 use crate::ui::editor::part_selector;
 use crate::ui::editor::EditorUIComponent;
 use bevy::prelude::*;
+use bevy_blur_regions::BlurRegion;
 use bevy_round_ui::prelude::*;
 
 pub fn spawn_part_selector(
@@ -27,7 +31,7 @@ pub fn spawn_part_selector(
                     ..default()
                 },
                 material: materials.add(RoundUiMaterial {
-                    background_color: Color::hex("444444").unwrap(),
+                    background_color: Color::rgba(0.0, 0.0, 0.0, 0.1),
                     border_radius: RoundUiBorder::all(crate::ui::UI_RADIUS).into(),
                     size: Vec2::new(window_width, window_height),
                     ..default()
@@ -35,12 +39,13 @@ pub fn spawn_part_selector(
                 ..default()
             },
             EditorUIComponent,
+            BlurRegion,
         ))
         .with_children(|parent| {
             // Title "Parts"
             parent
                 .spawn(NodeBundle {
-                    background_color: BackgroundColor(Color::hex("666666").unwrap()),
+                    background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.1)),
                     style: Style {
                         width: Val::Percent(100.0),
                         align_items: AlignItems::Center,
@@ -124,6 +129,10 @@ pub fn button_system(
     model_handles: Res<crate::ui::editor::handle::ModelHandles>,
     constrain_state: Res<State<ConstrainState>>,
     mut window_query: Query<&mut Window>,
+    mut placing_state: ResMut<NextState<PlacingState>>,
+    mut action_list: ResMut<ActionList>,
+    mut commands: Commands,
+    mut placing_query: Query<Entity, With<CurrentlyPlacing>>,
 ) {
     for (interaction, mut color, children) in &mut interaction_query {
         let mut window = window_query.get_single_mut().unwrap();
@@ -140,6 +149,11 @@ pub fn button_system(
                         (*model_handles).clone(),
                     );
 
+                    placing_state.set(PlacingState::NotPlacing);
+                    action_list.0.push(crate::actions::Action::PlaceHolder);
+                    for part in placing_query.iter_mut() {
+                        commands.entity(part).despawn_recursive();
+                    }
                     placing_event.send(PlacingEvent(formatted.clone(), model_handle.clone()));
                 }
                 *color = Color::hex("AAAAAA").unwrap().into();

@@ -1,6 +1,7 @@
 use crate::saving::{save_timer, SaveIcon};
 use crate::ui::editor::EditorUIComponent;
 use bevy::prelude::*;
+use bevy_blur_regions::BlurRegion;
 
 #[derive(Component)]
 pub struct EditorTopBar;
@@ -23,11 +24,12 @@ pub fn spawn_top_bar(
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("444444").unwrap()),
+                background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.1)),
                 ..default()
             },
             EditorUIComponent,
             EditorTopBar,
+            BlurRegion,
         ))
         .with_children(|parent| {
             parent.spawn((

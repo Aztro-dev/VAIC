@@ -1,9 +1,4 @@
-use bevy::{
-    app::{App, Plugin, PreUpdate},
-    ecs::system::{Query, ResMut, Resource},
-    math::Vec2,
-    window::Window,
-};
+use bevy::prelude::*;
 
 pub struct CursorPlugin;
 

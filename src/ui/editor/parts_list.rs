@@ -1,5 +1,6 @@
 use crate::{actions::ActionList, placing::PlacedPart, ui::editor::EditorUIComponent};
 use bevy::prelude::*;
+use bevy_blur_regions::BlurRegion;
 
 #[derive(Component)]
 pub struct PartsList;
@@ -24,17 +25,18 @@ pub fn spawn_parts_list(
                     overflow: Overflow::clip_y(),
                     ..default()
                 },
-                background_color: BackgroundColor(Color::hex("444444").unwrap()),
+                background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.1)),
                 ..default()
             },
             EditorUIComponent,
             PartsList,
+            BlurRegion,
         ))
         .with_children(|parent| {
             // Parts header
             parent
                 .spawn(NodeBundle {
-                    background_color: BackgroundColor(Color::hex("666666").unwrap()),
+                    background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.1)),
                     style: Style {
                         width: Val::Percent(100.0),
                         align_items: AlignItems::Center,
