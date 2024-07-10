@@ -18,14 +18,25 @@ pub fn handle_constraint_event(
     mut action_list: ResMut<ActionList>,
 ) {
     for event in events.read() {
+        if event.parents[0].index() == event.parents[1].index() {
+            break;
+        }
         let mut transform = transform_query.get_mut(event.parents[0]).unwrap();
-        let displacement =
-            event.constraints[0].transform.translation - event.constraints[1].transform.translation;
-        (*transform).translation += displacement;
-        // let rotation_diff =
-        //     event.constraints[0].transform.rotation - event.constraints[1].transform.rotation;
-        (*transform).rotation *= event.constraints[1].transform.rotation.normalize();
+        let curr = event.constraints[0].transform;
+        let other = event.constraints[1].transform;
+        *transform = constrain_to(transform.clone(), curr, other);
         action_list.0.push(event.clone().into());
+    }
+}
+
+pub fn constrain_to(parent_transform: Transform, curr: Transform, other: Transform) -> Transform {
+    let distance: Vec3 = other.translation - curr.translation;
+    // Difference between the quaternions
+    let angle_between: Quat = curr.rotation.inverse() * other.rotation;
+    Transform {
+        translation: parent_transform.translation - distance,
+        rotation: parent_transform.rotation * angle_between,
+        ..default()
     }
 }
 
