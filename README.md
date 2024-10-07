@@ -1,5 +1,5 @@
 # VAIC
-VAIC, short for **V**ex (**A**nti) **I**nnovation **C**reator (name subject to change) is a Free and Open Source CAD (Computer Aided Design) program designed to succeed [Protobot][https://github.com/BreadSoup/Protobot-Rebuilt)
+VAIC, short for **V**ex (**A**nti) **I**nnovation **C**reator (name subject to change) is a Free and Open Source CAD (Computer Aided Design) program designed to succeed [Protobot](https://github.com/BreadSoup/Protobot-Rebuilt)
 
 ## Installation Guide
 VAIC is built in [Rust](https://www.rust-lang.org), and therefore can be installed via [rustup](https://www.rust-lang.org/tools/install).
